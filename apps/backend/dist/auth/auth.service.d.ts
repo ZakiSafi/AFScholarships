@@ -1,5 +1,6 @@
 import { OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { AuthUser } from './interfaces/auth-user.interface';
 import { PrismaService } from '../prisma/prisma.service';
 export declare class AuthService implements OnModuleInit {
     private readonly prisma;
@@ -9,12 +10,6 @@ export declare class AuthService implements OnModuleInit {
     login(email: string, password: string): Promise<{
         access_token: string;
     }>;
-    getProfile(user: {
-        userId: string;
-        email: string;
-    }): {
-        userId: string;
-        email: string;
-    };
+    getProfile(user: AuthUser): AuthUser;
     private ensureDemoUser;
 }

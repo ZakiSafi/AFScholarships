@@ -13,10 +13,180 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  password           String
+  name               String?
+  role               UserRole             @default(USER)
+  country            String?
+  targetDegree       DegreeLevel?
+  targetCountry      String?
+  interests          String[]             @default([])
+  savedScholarships  SavedScholarship[]
+  reminders          UserReminder[]
+  applications       PartnerApplication[]
+  createdScholarship Scholarship[]        @relation("ScholarshipCreator")
+  submittedReports   ListingReport[]      @relation("ReportAuthor")
+  reviewedReports    ListingReport[]      @relation("ReportReviewer")
+  reviewedApps       PartnerApplication[] @relation("ApplicationReviewer")
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model Scholarship {
+  id                  String              @id @default(uuid())
+  slug                String              @unique
+  title               String
+  summary             String
+  description         String
+  provider            String
+  hostCountry         String
+  degreeLevel         DegreeLevel
+  fundingType         FundingType
+  languageRequirement String?
+  fieldOfStudy        String[]            @default([])
+  eligibleCountries   String[]            @default([])
+  minAge              Int?
+  maxAge              Int?
+  applicationUrl      String?
+  isPartnerApplication Boolean            @default(false)
+  startsAt            DateTime?
+  deadlineAt          DateTime
+  deadlineTimezone    String              @default("UTC")
+  verificationStatus  VerificationStatus  @default(UNVERIFIED)
+  verifiedAt          DateTime?
+  lastReviewedAt      DateTime?
+  isFeatured          Boolean             @default(false)
+  createdById         String?
+  createdBy           User?               @relation("ScholarshipCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  steps               ApplicationStep[]
+  savedByUsers        SavedScholarship[]
+  reminders           UserReminder[]
+  partnerApplications PartnerApplication[]
+  reports             ListingReport[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+model ApplicationStep {
+  id            String      @id @default(uuid())
+  scholarshipId String
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  orderIndex    Int
+  title         String
+  description   String
+  isRequired    Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([scholarshipId, orderIndex])
+}
+
+model SavedScholarship {
+  userId        String
+  scholarshipId String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@id([userId, scholarshipId])
+}
+
+model UserReminder {
+  id            String          @id @default(uuid())
+  userId        String
+  scholarshipId String
+  reminderAt    DateTime
+  channel       ReminderChannel @default(EMAIL)
+  status        ReminderStatus  @default(PENDING)
+  sentAt        DateTime?
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarship   Scholarship     @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model PartnerApplication {
+  id             String              @id @default(uuid())
+  scholarshipId  String
+  userId         String
+  reviewedById   String?
+  fullName       String
+  email          String
+  phone          String?
+  country        String?
+  educationLevel String?
+  statement      String
+  docsUrls       String[]            @default([])
+  status         ApplicationStatus   @default(SUBMITTED)
+  reviewedAt     DateTime?
+  scholarship    Scholarship         @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy     User?               @relation("ApplicationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+}
+
+model ListingReport {
+  id            String       @id @default(uuid())
+  scholarshipId String
+  userId        String?
+  reviewedById  String?
+  reason        String
+  details       String?
+  status        ReportStatus @default(OPEN)
+  resolvedAt    DateTime?
+  scholarship   Scholarship  @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  user          User?        @relation("ReportAuthor", fields: [userId], references: [id], onDelete: SetNull)
+  reviewedBy    User?        @relation("ReportReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum DegreeLevel {
+  BACHELOR
+  MASTER
+  PHD
+  SHORT_COURSE
+}
+
+enum FundingType {
+  FULL
+  PARTIAL
+  TUITION_ONLY
+  STIPEND_ONLY
+}
+
+enum VerificationStatus {
+  VERIFIED
+  UNVERIFIED
+  FLAGGED_STALE
+}
+
+enum ReminderChannel {
+  EMAIL
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
 }

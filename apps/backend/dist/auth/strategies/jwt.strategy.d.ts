@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import { Strategy } from 'passport-jwt';
 declare const JwtStrategy_base: new (...args: [opt: import("passport-jwt").StrategyOptionsWithRequest] | [opt: import("passport-jwt").StrategyOptionsWithoutRequest]) => Strategy & {
     validate(...args: any[]): unknown;
@@ -7,9 +8,11 @@ export declare class JwtStrategy extends JwtStrategy_base {
     validate(payload: {
         sub: string;
         email: string;
+        role: UserRole;
     }): {
         userId: string;
         email: string;
+        role: import("@prisma/client").$Enums.UserRole;
     };
 }
 export {};

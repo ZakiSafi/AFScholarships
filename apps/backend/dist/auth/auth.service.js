@@ -44,6 +44,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
+const client_1 = require("@prisma/client");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma_service_1 = require("../prisma/prisma.service");
@@ -68,7 +69,7 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const payload = { sub: user.id, email: user.email };
+        const payload = { sub: user.id, email: user.email, role: user.role };
         return {
             access_token: await this.jwtService.signAsync(payload),
         };
@@ -80,6 +81,12 @@ let AuthService = class AuthService {
         const email = 'admin@afscholarships.dev';
         const user = await this.prisma.user.findUnique({ where: { email } });
         if (user) {
+            if (user.role !== client_1.UserRole.ADMIN) {
+                await this.prisma.user.update({
+                    where: { id: user.id },
+                    data: { role: client_1.UserRole.ADMIN },
+                });
+            }
             return;
         }
         const hashedPassword = await bcrypt.hash('password123', 10);
@@ -88,6 +95,7 @@ let AuthService = class AuthService {
                 email,
                 password: hashedPassword,
                 name: 'Admin User',
+                role: client_1.UserRole.ADMIN,
             },
         });
     }

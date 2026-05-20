@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -6,8 +6,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import type { AuthUser } from './interfaces/auth-user.interface';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -29,7 +31,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get authenticated user profile' })
   @ApiResponse({ status: 200, description: 'User profile returned' })
-  profile(@Req() req: { user: { userId: string; email: string } }) {
-    return this.authService.getProfile(req.user);
+  profile(@CurrentUser() user: AuthUser) {
+    return this.authService.getProfile(user);
   }
 }

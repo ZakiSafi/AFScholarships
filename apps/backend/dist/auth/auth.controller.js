@@ -16,6 +16,7 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
+const current_user_decorator_1 = require("./decorators/current-user.decorator");
 const login_dto_1 = require("./dto/login.dto");
 const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AuthController = class AuthController {
@@ -26,8 +27,8 @@ let AuthController = class AuthController {
     login(payload) {
         return this.authService.login(payload.email, payload.password);
     }
-    profile(req) {
-        return this.authService.getProfile(req.user);
+    profile(user) {
+        return this.authService.getProfile(user);
     }
 };
 exports.AuthController = AuthController;
@@ -49,7 +50,7 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get authenticated user profile' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'User profile returned' }),
-    __param(0, (0, common_1.Req)()),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
