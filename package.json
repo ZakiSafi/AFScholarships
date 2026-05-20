@@ -1,0 +1,17 @@
+{
+  "name": "afscholarships",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AfScholarships monorepo",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "start:back": "docker compose up --build backend postgres mailhog",
+    "start:front": "docker compose up --build frontend backend postgres mailhog",
+    "stop": "docker compose down"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
