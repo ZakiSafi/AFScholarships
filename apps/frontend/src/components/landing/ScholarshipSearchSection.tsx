@@ -7,6 +7,8 @@ import {
   fundingTypeOptions,
   quickFilterChips,
 } from '../../data/landing'
+import { useScholarshipFacetsQuery } from '../../features/scholarships/api'
+import { formatDegreeLevel, formatFundingType } from '../../features/scholarships/format'
 import { buildScholarshipSearchParams } from '../../features/scholarships/search-params'
 import type { DegreeLevel, FundingType } from '../../features/scholarships/types'
 import { Button } from '../ui/Button'
@@ -26,6 +28,7 @@ const chipToParams: Record<
 }
 
 export function ScholarshipSearchSection() {
+  const { data: facets } = useScholarshipFacetsQuery()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [degreeLevel, setDegreeLevel] = useState('')
@@ -75,6 +78,30 @@ export function ScholarshipSearchSection() {
   const selectClassName =
     'w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-base font-medium text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-blue-100'
 
+  const countrySelectOptions: Array<{ value: string; label: string }> =
+    facets?.countries?.length ?
+      [{ value: '', label: 'All countries' }, ...facets.countries.map((c) => ({
+        value: c.value,
+        label: `${c.value} (${c.count})`,
+      }))]
+    : [...countryOptions]
+
+  const degreeSelectOptions: Array<{ value: string; label: string }> =
+    facets?.degreeLevels?.length ?
+      [{ value: '', label: 'All degree levels' }, ...facets.degreeLevels.map((d) => ({
+        value: d.value,
+        label: formatDegreeLevel(d.value as DegreeLevel),
+      }))]
+    : [...degreeLevelOptions]
+
+  const fundingSelectOptions: Array<{ value: string; label: string }> =
+    facets?.fundingTypes?.length ?
+      [{ value: '', label: 'All funding types' }, ...facets.fundingTypes.map((f) => ({
+        value: f.value,
+        label: formatFundingType(f.value as FundingType),
+      }))]
+    : [...fundingTypeOptions]
+
   return (
     <section
       id="search"
@@ -90,7 +117,7 @@ export function ScholarshipSearchSection() {
             Search scholarships
           </h2>
           <p className="text-section-desc mx-auto mt-2 max-w-xl">
-            Filter by country, degree, and funding—free for students at launch.
+            Filter by country, degree, and funding from our live catalog.
           </p>
         </div>
 
@@ -127,7 +154,7 @@ export function ScholarshipSearchSection() {
                 onChange={(e) => setDegreeLevel(e.target.value)}
                 className={selectClassName}
               >
-                {degreeLevelOptions.map((opt) => (
+                {degreeSelectOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>
@@ -145,7 +172,7 @@ export function ScholarshipSearchSection() {
                 onChange={(e) => setCountry(e.target.value)}
                 className={selectClassName}
               >
-                {countryOptions.map((opt) => (
+                {countrySelectOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>
@@ -163,7 +190,7 @@ export function ScholarshipSearchSection() {
                 onChange={(e) => setFundingType(e.target.value)}
                 className={selectClassName}
               >
-                {fundingTypeOptions.map((opt) => (
+                {fundingSelectOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>

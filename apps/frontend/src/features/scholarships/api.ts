@@ -50,6 +50,17 @@ export const scholarshipsApi = baseApi.injectEndpoints({
         params: { limit },
       }),
     }),
+    reportListing: builder.mutation<
+      { id: string },
+      { scholarshipId: string; reason: string; details?: string }
+    >({
+      query: ({ scholarshipId, reason, details }) => ({
+        url: `/scholarships/${scholarshipId}/report`,
+        method: 'POST',
+        body: { reason, details },
+      }),
+      invalidatesTags: [{ type: 'AdminReports', id: 'LIST' }],
+    }),
   }),
 })
 
@@ -58,4 +69,5 @@ export const {
   useScholarshipFacetsQuery,
   useScholarshipDetailsQuery,
   useRelatedScholarshipsQuery,
+  useReportListingMutation,
 } = scholarshipsApi

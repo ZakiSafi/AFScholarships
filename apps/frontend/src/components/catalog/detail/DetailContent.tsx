@@ -1,6 +1,7 @@
 import { Globe, HelpCircle, ListChecks } from 'lucide-react'
 import { ExternalLink } from 'lucide-react'
 import type { ScholarshipDetail } from '../../../features/scholarships/types'
+import { ReportListingForm } from '../../student/ReportListingForm'
 import { SectionHeading } from '../shared/SectionHeading'
 import { Badge } from '../../ui/Badge'
 
@@ -177,6 +178,20 @@ export function DetailContent({ scholarship }: DetailContentProps) {
           </div>
         </section>
       ) : null}
+
+      <section>
+        <SectionHeading
+          eyebrow="Trust"
+          title="Something wrong?"
+          description="Help us keep listings accurate for everyone."
+        />
+        <div className="mt-6">
+          <ReportListingForm
+            scholarshipId={scholarship.id}
+            scholarshipTitle={scholarship.title}
+          />
+        </div>
+      </section>
 
       {scholarship.sources.length > 0 ? (
         <section>

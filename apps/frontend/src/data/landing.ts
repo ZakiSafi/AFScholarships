@@ -76,10 +76,11 @@ export const heroTrustIndicators = [
   'Free for students',
 ] as const
 
+/** @deprecated Use HeroStats component (loads from API) */
 export const heroStats = [
-  { value: '500+', label: 'Scholarships' },
-  { value: '50+', label: 'Countries' },
-  { value: '100%', label: 'Free at launch' },
+  { value: '—', label: 'Scholarships' },
+  { value: '—', label: 'Countries' },
+  { value: '100%', label: 'Free to use' },
 ] as const
 
 export const degreeLevelOptions = [
@@ -254,54 +255,58 @@ export const platformBenefits: BenefitItem[] = [
   },
 ]
 
+function catalogCountryHref(country: string): string {
+  return `/scholarships?country=${encodeURIComponent(country)}`
+}
+
 export const popularDestinations: DestinationCard[] = [
   {
     id: 'germany',
     name: 'Germany',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('Germany'),
   },
   {
     id: 'turkiye',
     name: 'Türkiye',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('Turkey'),
   },
   {
     id: 'japan',
     name: 'Japan',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('Japan'),
   },
   {
     id: 'qatar',
     name: 'Qatar',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('Qatar'),
   },
   {
     id: 'uk',
     name: 'United Kingdom',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('United Kingdom'),
   },
   {
     id: 'us',
     name: 'United States',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('United States'),
   },
   {
     id: 'canada',
     name: 'Canada',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('Canada'),
   },
   {
     id: 'australia',
     name: 'Australia',
     description: 'Scholarships, universities, and funding options',
-    href: '/countries',
+    href: catalogCountryHref('Australia'),
   },
 ]
 
@@ -368,9 +373,9 @@ export const footerColumns = {
     { label: 'Saved scholarships', href: '/scholarships' },
   ],
   resources: [
-    { label: 'Motivation letter guide', href: '/guides' },
-    { label: 'Scholarship documents', href: '/guides' },
-    { label: 'Without IELTS', href: '/guides' },
+    { label: 'Motivation letter guide', href: '/guides/motivation-letter' },
+    { label: 'Scholarship documents', href: '/guides/documents' },
+    { label: 'Without IELTS', href: '/guides/no-ielts' },
   ],
   legal: [
     { label: 'Privacy', href: '/privacy' },

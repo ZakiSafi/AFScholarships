@@ -7,7 +7,28 @@ import { AdminLayout } from './layouts/AdminLayout'
 import { DashboardLayout } from './layouts/DashboardLayout'
 import { PublicLayout } from './layouts/PublicLayout'
 import { RouteFallback } from './RouteFallback'
-import { PublicStaticPage } from '../components/public/PublicStaticPage'
+
+const CountriesPage = lazy(() =>
+  import('../pages/public/CountriesPage').then((m) => ({ default: m.CountriesPage })),
+)
+const GuidesPage = lazy(() =>
+  import('../pages/public/GuidesPage').then((m) => ({ default: m.GuidesPage })),
+)
+const GuideDetailPage = lazy(() =>
+  import('../pages/public/GuideDetailPage').then((m) => ({ default: m.GuideDetailPage })),
+)
+const AboutPage = lazy(() =>
+  import('../pages/public/AboutPage').then((m) => ({ default: m.AboutPage })),
+)
+const PrivacyPage = lazy(() =>
+  import('../pages/public/PrivacyPage').then((m) => ({ default: m.PrivacyPage })),
+)
+const TermsPage = lazy(() =>
+  import('../pages/public/TermsPage').then((m) => ({ default: m.TermsPage })),
+)
+const NotFoundPage = lazy(() =>
+  import('../pages/public/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
+)
 
 const LandingPage = lazy(() =>
   import('../pages/public/LandingPage').then((m) => ({ default: m.LandingPage })),
@@ -111,6 +132,11 @@ const AdminAuditLogsPage = lazy(() =>
 const AdminJobsPage = lazy(() =>
   import('../pages/admin/AdminJobsPage').then((m) => ({
     default: m.AdminJobsPage,
+  })),
+)
+const AdminScholarshipEditorPage = lazy(() =>
+  import('../pages/admin/AdminScholarshipEditorPage').then((m) => ({
+    default: m.AdminScholarshipEditorPage,
   })),
 )
 
@@ -244,6 +270,22 @@ export function AppRouter() {
               }
             />
             <Route
+              path="/admin/scholarships/new"
+              element={
+                <Lazy>
+                  <AdminScholarshipEditorPage />
+                </Lazy>
+              }
+            />
+            <Route
+              path="/admin/scholarships/:id/edit"
+              element={
+                <Lazy>
+                  <AdminScholarshipEditorPage />
+                </Lazy>
+              }
+            />
+            <Route
               path="/admin/reports"
               element={
                 <Lazy>
@@ -315,53 +357,57 @@ export function AppRouter() {
         <Route
           path="/countries"
           element={
-            <PublicStaticPage
-              eyebrow="Destinations"
-              title="Countries directory"
-              description="Explore scholarships by host country. We're building curated destination guides next."
-            />
+            <Lazy>
+              <CountriesPage />
+            </Lazy>
           }
         />
         <Route
           path="/guides"
           element={
-            <PublicStaticPage
-              eyebrow="Resources"
-              title="Application guides"
-              description="Step-by-step guides for documents, motivation letters, and interviews—launching soon."
-            />
+            <Lazy>
+              <GuidesPage />
+            </Lazy>
+          }
+        />
+        <Route
+          path="/guides/:slug"
+          element={
+            <Lazy>
+              <GuideDetailPage />
+            </Lazy>
           }
         />
         <Route
           path="/about"
           element={
-            <PublicStaticPage
-              eyebrow="Our mission"
-              title="About AfScholarships"
-              description="We help Afghan students discover verified global scholarships with clarity, official links, and deadline support."
-            />
+            <Lazy>
+              <AboutPage />
+            </Lazy>
           }
         />
         <Route
           path="/privacy"
           element={
-            <PublicStaticPage title="Privacy Policy" description="Our privacy policy will be published here before public launch." />
+            <Lazy>
+              <PrivacyPage />
+            </Lazy>
           }
         />
         <Route
           path="/terms"
           element={
-            <PublicStaticPage title="Terms of Service" description="Terms of use for AfScholarships will be published here before public launch." />
+            <Lazy>
+              <TermsPage />
+            </Lazy>
           }
         />
         <Route
           path="*"
           element={
-            <PublicStaticPage
-              eyebrow="404"
-              title="Page not found"
-              description="The page you're looking for doesn't exist or has moved."
-            />
+            <Lazy>
+              <NotFoundPage />
+            </Lazy>
           }
         />
       </Route>

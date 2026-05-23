@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react'
-import { heroStats } from '../../data/landing'
 import { Button } from '../ui/Button'
+import { HeroStats } from './HeroStats'
 import { HeroVisual } from './HeroVisual'
 
 export function HeroSection() {
@@ -51,18 +51,7 @@ export function HeroSection() {
             </Button>
           </div>
 
-          <dl className="mt-12 grid grid-cols-3 gap-6 border-t border-slate-200 pt-8">
-            {heroStats.map((stat) => (
-              <div key={stat.label}>
-                <dt className="text-2xl font-extrabold tabular-nums text-[var(--color-primary)] sm:text-3xl">
-                  {stat.value}
-                </dt>
-                <dd className="mt-1 text-sm font-semibold text-slate-800">
-                  {stat.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <HeroStats />
         </div>
       </div>
     </section>

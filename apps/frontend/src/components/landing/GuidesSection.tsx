@@ -1,6 +1,6 @@
 import { ArrowRight, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { guides } from '../../data/landing'
+import { guideArticles } from '../../data/guides-content'
 import { guideGradients, guideImages } from '../../data/landing-images'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
@@ -34,17 +34,17 @@ export function GuidesSection() {
       </div>
 
       <div className="mt-12 grid gap-8 md:grid-cols-3">
-        {guides.map((guide) => {
-          const image = guideImages[guide.id]
+        {guideArticles.map((guide) => {
+          const image = guideImages[guide.slug]
           const gradient =
-            guideGradients[guide.id] ?? 'from-blue-800 to-slate-900'
+            guideGradients[guide.slug] ?? 'from-blue-800 to-slate-900'
 
           return (
             <article
-              key={guide.id}
+              key={guide.slug}
               className="card-hover-lift flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-card"
             >
-              <Link to="/guides" className="block">
+              <Link to={`/guides/${guide.slug}`} className="block">
                 <BrandImage
                   src={image?.src ?? ''}
                   alt={image?.alt ?? guide.title}
@@ -57,7 +57,7 @@ export function GuidesSection() {
                 <Badge variant="category">{guide.category}</Badge>
                 <h3 className="mt-4 text-lg font-bold leading-snug text-[var(--color-text)]">
                   <Link
-                    to="/guides"
+                    to={`/guides/${guide.slug}`}
                     className="hover:text-[var(--color-primary)]"
                   >
                     {guide.title}
@@ -72,7 +72,7 @@ export function GuidesSection() {
                 </p>
                 <Button
                   variant="ghost"
-                  to="/guides"
+                  to={`/guides/${guide.slug}`}
                   className="mt-3 justify-start px-0 font-bold text-[var(--color-primary)] hover:bg-transparent"
                 >
                   Read guide

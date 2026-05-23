@@ -195,6 +195,32 @@ export const adminApi = baseApi.injectEndpoints({
             ]
           : [{ type: 'AdminAudit', id: 'LIST' }],
     }),
+    createScholarship: builder.mutation<ScholarshipDetail, Record<string, unknown>>({
+      query: (body) => ({
+        url: '/scholarships',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: [
+        { type: 'Scholarships', id: 'ADMIN_LIST' },
+        { type: 'Scholarships', id: 'LIST' },
+      ],
+    }),
+    updateScholarship: builder.mutation<
+      ScholarshipDetail,
+      { id: string; body: Record<string, unknown> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/scholarships/${id}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: (_r, _e, { id }) => [
+        { type: 'Scholarships', id },
+        { type: 'Scholarships', id: 'ADMIN_LIST' },
+        { type: 'Scholarships', id: 'LIST' },
+      ],
+    }),
     runAdminJob: builder.mutation<RunJobResult, AdminJobName>({
       query: (job) => ({
         url: '/admin/jobs/run',
@@ -220,4 +246,6 @@ export const {
   useUpdateAdminApplicationStatusMutation,
   useListAuditLogsQuery,
   useRunAdminJobMutation,
+  useCreateScholarshipMutation,
+  useUpdateScholarshipMutation,
 } = adminApi

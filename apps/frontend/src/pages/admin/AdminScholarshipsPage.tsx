@@ -97,11 +97,14 @@ export function AdminScholarshipsPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--color-text)]">Scholarships</h1>
-        <p className="mt-2 text-[var(--color-muted)]">
-          Publish drafts, verify listings, and run bulk maintenance.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">Scholarships</h1>
+          <p className="mt-2 text-[var(--color-muted)]">
+            Publish drafts, verify listings, and run bulk maintenance.
+          </p>
+        </div>
+        <Button to="/admin/scholarships/new">Create scholarship</Button>
       </div>
 
       <Card className="space-y-4 p-4">
@@ -213,12 +216,20 @@ export function AdminScholarshipsPage() {
                   <td className="px-4 py-3">
                     <p className="font-semibold text-slate-900">{scholarship.title}</p>
                     <p className="text-xs text-slate-500">{scholarship.provider}</p>
-                    <Link
-                      to={`/scholarships/${scholarship.slug}`}
-                      className="text-xs font-semibold text-[var(--color-primary)] hover:underline"
-                    >
-                      View public page
-                    </Link>
+                    <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                      <Link
+                        to={`/scholarships/${scholarship.slug}`}
+                        className="text-[var(--color-primary)] hover:underline"
+                      >
+                        View public
+                      </Link>
+                      <Link
+                        to={`/admin/scholarships/${scholarship.id}/edit`}
+                        className="text-[var(--color-primary)] hover:underline"
+                      >
+                        Edit
+                      </Link>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span

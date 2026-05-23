@@ -855,5 +855,6 @@ export declare class ScholarshipsService implements OnModuleInit {
     private queryScholarships;
     private buildWhere;
     private buildOrderBy;
+    private resolveSeedDeadline;
     private seedScholarships;
 }

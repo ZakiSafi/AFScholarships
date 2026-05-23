@@ -25,6 +25,10 @@ import {
   replaceNestedContent,
   scholarshipDetailInclude,
 } from './scholarships-content.helper';
+import {
+  SCHOLARSHIP_SEEDS,
+  SEED_TAG_DEFINITIONS,
+} from './scholarships.seed-data';
 
 @Injectable()
 export class ScholarshipsService implements OnModuleInit {
@@ -479,179 +483,92 @@ export class ScholarshipsService implements OnModuleInit {
     }
   }
 
-  private async seedScholarships() {
-    await this.prisma.scholarship.updateMany({
-      where: {
-        slug: { in: ['turkiye-burslari', 'afscholars-partner-program'] },
-        status: ScholarshipStatus.DRAFT,
-      },
-      data: { status: ScholarshipStatus.PUBLISHED },
-    });
-
-    const publishedCount = await this.prisma.scholarship.count({
-      where: { status: ScholarshipStatus.PUBLISHED },
-    });
-    if (publishedCount > 0) {
-      return;
+  private resolveSeedDeadline(month: number, day: number): Date {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    let deadline = new Date(Date.UTC(year, month - 1, day));
+    if (deadline < now) {
+      deadline = new Date(Date.UTC(year + 1, month - 1, day));
     }
+    return deadline;
+  }
 
+  private async seedScholarships() {
     const admin = await this.prisma.user.findFirst({
       where: { role: UserRole.ADMIN },
       select: { id: true },
     });
 
-    const nowYear = new Date().getUTCFullYear();
+    for (const seed of SCHOLARSHIP_SEEDS) {
+      const deadlineAt = this.resolveSeedDeadline(
+        seed.deadlineMonth,
+        seed.deadlineDay,
+      );
+      const now = new Date();
 
-    const turkiye = await this.prisma.scholarship.create({
-      data: {
-        slug: 'turkiye-burslari',
-        title: 'Turkiye Burslari Scholarship',
-        summary:
-          'Fully funded undergraduate and graduate scholarships in Turkiye.',
-        description:
-          'Turkiye Burslari provides tuition, stipend, accommodation, and health insurance for international students.',
-        provider: 'Turkiye Scholarships',
-        hostCountry: 'Turkey',
-        degreeLevel: 'MASTER',
-        fundingType: 'FULL',
-        languageRequirement: 'English or Turkish program requirements apply',
-        fieldOfStudy: ['Engineering', 'Social Sciences'],
-        eligibleCountries: ['Afghanistan', 'Pakistan', 'Uzbekistan'],
-        applicationUrl: 'https://www.turkiyeburslari.gov.tr/',
-        isPartnerApplication: false,
-        deadlineAt: new Date(Date.UTC(nowYear, 11, 20)),
+      const nestedContent = {
+        requirements: seed.requirements,
+        benefits: seed.benefits,
+        faqs: seed.faqs,
+        sources: seed.sources.map((source) => ({
+          url: source.url,
+          label: source.label,
+        })),
+        steps: seed.steps,
+        tags: seed.tags.map((slug) => ({
+          slug,
+          name: SEED_TAG_DEFINITIONS[slug] ?? slug,
+        })),
+      };
+
+      const scalar = {
+        title: seed.title,
+        summary: seed.summary,
+        description: seed.description,
+        provider: seed.provider,
+        hostCountry: seed.hostCountry,
+        degreeLevel: seed.degreeLevel,
+        fundingType: seed.fundingType,
+        languageRequirement: seed.languageRequirement ?? null,
+        fieldOfStudy: seed.fieldOfStudy,
+        eligibleCountries: seed.eligibleCountries,
+        applicationUrl: seed.isPartnerApplication
+          ? null
+          : (seed.applicationUrl ?? null),
+        isPartnerApplication: seed.isPartnerApplication ?? false,
+        deadlineAt,
         deadlineTimezone: 'UTC',
-        verificationStatus: 'VERIFIED',
-        verifiedAt: new Date(),
-        lastReviewedAt: new Date(),
-        isFeatured: true,
+        verificationStatus: VerificationStatus.VERIFIED,
+        verifiedAt: now,
+        lastReviewedAt: now,
+        isFeatured: seed.isFeatured ?? false,
         status: ScholarshipStatus.PUBLISHED,
         createdById: admin?.id,
-        requirements: {
-          create: [
-            {
-              orderIndex: 1,
-              label: 'Nationality',
-              description: 'Open to eligible countries including Afghanistan.',
-              isMandatory: true,
-            },
-            {
-              orderIndex: 2,
-              label: 'Academic record',
-              description: 'Minimum GPA requirements vary by program.',
-              isMandatory: true,
-            },
-          ],
-        },
-        benefits: {
-          create: [
-            {
-              orderIndex: 1,
-              title: 'Full tuition',
-              description: 'University tuition fees covered.',
-            },
-            {
-              orderIndex: 2,
-              title: 'Monthly stipend',
-              description: 'Living allowance for students.',
-            },
-          ],
-        },
-        sources: {
-          create: [
-            {
-              url: 'https://www.turkiyeburslari.gov.tr/',
-              label: 'Official program website',
-              lastCheckedAt: new Date(),
-            },
-          ],
-        },
-        tags: {
-          create: [
-            {
-              tag: {
-                connectOrCreate: {
-                  where: { slug: 'fully-funded' },
-                  create: { slug: 'fully-funded', name: 'Fully funded' },
-                },
-              },
-            },
-          ],
-        },
-      },
-    });
+      };
 
-    const partner = await this.prisma.scholarship.create({
-      data: {
-        slug: 'afscholars-partner-program',
-        title: 'AfScholarships Partner Opportunity Program',
-        summary:
-          'Partner-managed scholarship intake with in-platform application.',
-        description:
-          'Students can submit profile and statement directly in AfScholarships for partner selection rounds.',
-        provider: 'AfScholarships Partners',
-        hostCountry: 'Global',
-        degreeLevel: 'BACHELOR',
-        fundingType: 'PARTIAL',
-        languageRequirement: 'No IELTS required at screening stage',
-        fieldOfStudy: ['Computer Science', 'Business'],
-        eligibleCountries: ['Afghanistan'],
-        isPartnerApplication: true,
-        deadlineAt: new Date(Date.UTC(nowYear, 8, 15)),
-        deadlineTimezone: 'UTC',
-        verificationStatus: 'VERIFIED',
-        verifiedAt: new Date(),
-        lastReviewedAt: new Date(),
-        isFeatured: true,
-        status: ScholarshipStatus.PUBLISHED,
-        createdById: admin?.id,
-        tags: {
-          create: [
-            {
-              tag: {
-                connectOrCreate: {
-                  where: { slug: 'apply-in-app' },
-                  create: { slug: 'apply-in-app', name: 'Apply in-app' },
-                },
-              },
-            },
-          ],
-        },
-      },
-    });
+      const existing = await this.prisma.scholarship.findUnique({
+        where: { slug: seed.slug },
+        select: { id: true },
+      });
 
-    await this.prisma.applicationStep.createMany({
-      data: [
-        {
-          scholarshipId: partner.id,
-          orderIndex: 1,
-          title: 'Prepare profile',
-          description: 'Complete your education history and contact details.',
-        },
-        {
-          scholarshipId: partner.id,
-          orderIndex: 2,
-          title: 'Upload statement',
-          description:
-            'Provide a short motivation statement about your study goals.',
-        },
-        {
-          scholarshipId: partner.id,
-          orderIndex: 3,
-          title: 'Submit and wait for review',
-          description: 'Our partner team reviews submissions in 2-4 weeks.',
-        },
-      ],
-    });
+      if (existing) {
+        await this.prisma.$transaction(async (tx) => {
+          await replaceNestedContent(tx, existing.id, nestedContent);
+          await tx.scholarship.update({
+            where: { id: existing.id },
+            data: scalar,
+          });
+        });
+        continue;
+      }
 
-    await this.prisma.scholarshipFaq.create({
-      data: {
-        scholarshipId: turkiye.id,
-        orderIndex: 1,
-        question: 'Do I need to know Turkish?',
-        answer:
-          'Many programs are offered in English; check each university requirement.',
-      },
-    });
+      await this.prisma.scholarship.create({
+        data: {
+          slug: seed.slug,
+          ...scalar,
+          ...buildNestedCreate(nestedContent),
+        },
+      });
+    }
   }
 }
