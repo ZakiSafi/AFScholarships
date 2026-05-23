@@ -1,17 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux'
 import { initAttribution } from './analytics/attribution'
-import './index.css'
-import App from './App.tsx'
-import { store } from './store'
+import { AppProviders } from './app/providers'
+import { AppRouter } from './app/router'
+import './styles/globals.css'
 
 initAttribution()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <AppProviders>
+      <AppRouter />
+    </AppProviders>
   </StrictMode>,
 )
