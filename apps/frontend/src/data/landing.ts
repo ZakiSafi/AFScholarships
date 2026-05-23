@@ -84,28 +84,29 @@ export const heroStats = [
 
 export const degreeLevelOptions = [
   { value: '', label: 'All degree levels' },
-  { value: 'bachelor', label: 'Bachelor' },
-  { value: 'master', label: 'Master' },
-  { value: 'phd', label: 'PhD' },
-  { value: 'research', label: 'Research' },
+  { value: 'BACHELOR', label: 'Bachelor' },
+  { value: 'MASTER', label: 'Master' },
+  { value: 'PHD', label: 'PhD' },
+  { value: 'SHORT_COURSE', label: 'Short course' },
 ] as const
 
 export const countryOptions = [
   { value: '', label: 'All countries' },
-  { value: 'germany', label: 'Germany' },
-  { value: 'turkey', label: 'Türkiye' },
-  { value: 'japan', label: 'Japan' },
-  { value: 'qatar', label: 'Qatar' },
-  { value: 'uk', label: 'United Kingdom' },
-  { value: 'us', label: 'United States' },
+  { value: 'Turkey', label: 'Türkiye' },
+  { value: 'Germany', label: 'Germany' },
+  { value: 'Japan', label: 'Japan' },
+  { value: 'Qatar', label: 'Qatar' },
+  { value: 'United Kingdom', label: 'United Kingdom' },
+  { value: 'United States', label: 'United States' },
+  { value: 'Global', label: 'Global' },
 ] as const
 
 export const fundingTypeOptions = [
   { value: '', label: 'All funding types' },
-  { value: 'fully-funded', label: 'Fully funded' },
-  { value: 'partial', label: 'Partial funding' },
-  { value: 'tuition', label: 'Tuition only' },
-  { value: 'stipend', label: 'Stipend' },
+  { value: 'FULL', label: 'Fully funded' },
+  { value: 'PARTIAL', label: 'Partial funding' },
+  { value: 'TUITION_ONLY', label: 'Tuition only' },
+  { value: 'STIPEND_ONLY', label: 'Stipend' },
 ] as const
 
 export const quickFilterChips = [

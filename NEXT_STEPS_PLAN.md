@@ -190,7 +190,7 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 |------|--------|
 | `baseApi.ts` with shared base query | ✅ |
 | Token + **refresh** interceptor (401 → refresh → retry) | ✅ |
-| Split feature `api.ts` files | ⚠️ `features/auth/api.ts` + `catalogApi.ts` (rest TBD) |
+| Split feature `api.ts` files | ⚠️ `auth` + `scholarships` done; saved/applications/etc. TBD |
 
 **Required API alignment** (backend changed; frontend must update):
 
@@ -208,19 +208,19 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 | Feature | `types.ts` | `validation.ts` | `api.ts` | `hooks.ts` | `slice.ts` |
 |---------|------------|-----------------|----------|------------|------------|
 | `auth` | ✅ | ✅ | ✅ | ✅ | ✅ `authSlice` + storage |
-| `scholarships` | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `saved` | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `applications` | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `reminders` | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `profile` | ❌ | ❌ | ❌ | ❌ | ❌ |
-| `admin` | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `scholarships` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| `saved` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| `applications` | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `reminders` | ✅ | ❌ | ✅ | ❌ | ❌ |
+| `profile` | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `admin` | ✅ | ❌ | ✅ | ❌ | ❌ |
 | `analytics` | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ### 4.4 Pages — ⚠️ Partial
 
 | Page | Status |
 |------|--------|
-| `public/LandingPage.tsx` | ⚠️ UI only; mock data |
+| `public/LandingPage.tsx` | ⚠️ UI; featured/search wired to API |
 | `public/AboutPage.tsx` | ❌ Placeholder route only |
 | `public/ContactPage.tsx` | ❌ Not routed |
 | `public/PrivacyPage.tsx` | ❌ Placeholder |
@@ -230,18 +230,19 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 | `auth/ForgotPasswordPage.tsx` | ✅ |
 | `auth/ResetPasswordPage.tsx` | ✅ |
 | `auth/AuthCallbackPage.tsx` | ✅ |
-| `scholarships/ScholarshipListPage.tsx` | ❌ Placeholder |
-| `scholarships/ScholarshipDetailPage.tsx` | ❌ |
+| `public/ScholarshipsListPage.tsx` | ✅ API + filters |
+| `public/ScholarshipDetailPage.tsx` | ✅ API + related |
 | `scholarships/ScholarshipComparePage.tsx` | ❌ |
-| `dashboard/*` (6 pages) | ❌ |
-| `admin/*` (6 pages) | ❌ |
+| `dashboard/*` (overview, saved, applications, detail, apply, reminders, profile) | ✅ |
+| `admin/*` (overview, scholarships, reports, applications, audit, jobs) | ✅ |
 
 ### 4.5 UI system — ⚠️ Partial
 
 | Component | Status |
 |-----------|--------|
 | Button, Input, Card, Badge | ✅ |
-| Select, Textarea, Tabs, Modal | ❌ |
+| Select, Tabs, Modal | ❌ |
+| Textarea | ✅ |
 | Table, Pagination | ❌ |
 | Toast, Skeleton | ❌ |
 | Navbar, Footer | ✅ (`PublicNavbar`, `Footer`) |
@@ -337,7 +338,7 @@ Frontend must be updated to consume these contracts (see §4.2).
 | **A** | Prisma + migrations; auth (OAuth/reset/refresh) | ✅ **Done** |
 | **B** | Scholarship catalog; saved/reminders/applications; users/profiles | ✅ **Done** |
 | **C** | Admin moderation/audit; jobs; mailer | ✅ **Done** |
-| **D** | Frontend architecture + all product pages | ⚠️ **D-Foundation done**; D-Public/Student/Admin pending |
+| **D** | Frontend architecture + all product pages | ✅ **D-Foundation + D-Public + D-Student + D-Admin** (polish/tests pending) |
 | **E** | Analytics provider; tests; launch prep | ❌ **Not started** |
 
 ---
@@ -347,9 +348,9 @@ Frontend must be updated to consume these contracts (see §4.2).
 | Criterion | Status |
 |-----------|--------|
 | Full auth lifecycle (email + Google + reset + refresh/logout) | ⚠️ Backend ✅ · Frontend ✅ (Google needs env keys) |
-| Scholarship lifecycle (draft/publish/verify/archive) | ⚠️ Backend ✅ · Admin UI ❌ |
-| Student flows (discover/save/remind/apply/track) | ⚠️ Backend ✅ · Frontend ❌ |
-| Admin console complete | ⚠️ Backend ✅ · Frontend ❌ |
+| Scholarship lifecycle (draft/publish/verify/archive) | ⚠️ Backend ✅ · Admin UI ✅ (no create/edit form yet) |
+| Student flows (discover/save/remind/apply/track) | ⚠️ Backend ✅ · Frontend ✅ (partner apply + profile) |
+| Admin console complete | ⚠️ Backend ✅ · Frontend ✅ (queues + bulk ops; no scholarship editor) |
 | Background jobs active | ✅ |
 | Lint/typecheck/tests passing | ⚠️ Build passes; tests ❌ |
 | Production env + ops docs | ❌ |

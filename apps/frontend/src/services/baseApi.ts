@@ -73,6 +73,7 @@ export const baseApi = createApi({
     'Applications',
     'Reminders',
     'AdminReports',
+    'AdminAudit',
     'Profile',
   ],
   endpoints: () => ({}),

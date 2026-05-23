@@ -2,7 +2,12 @@ import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './features/auth/authSlice'
 import { baseApi } from './services/baseApi'
 import './features/auth/api'
-import './services/catalogApi'
+import './features/scholarships/api'
+import './features/saved/api'
+import './features/reminders/api'
+import './features/applications/api'
+import './features/profile/api'
+import './features/admin/api'
 
 export const store = configureStore({
   reducer: {

@@ -1,8 +1,13 @@
-import { featuredScholarships } from '../../data/landing'
+import { useListScholarshipsQuery } from '../../features/scholarships/api'
+import { CatalogCard } from '../catalog/shared/CatalogCard'
 import { Button } from '../ui/Button'
-import { ScholarshipCardItem } from './ScholarshipCardItem'
 
 export function FeaturedScholarshipsSection() {
+  const { data, isLoading, isError } = useListScholarshipsQuery({
+    sortBy: 'featured',
+    limit: 6,
+  })
+
   return (
     <section
       className="bg-white py-16 sm:py-20"
@@ -26,11 +31,34 @@ export function FeaturedScholarshipsSection() {
           </Button>
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredScholarships.map((scholarship) => (
-            <ScholarshipCardItem key={scholarship.id} scholarship={scholarship} />
-          ))}
-        </div>
+        {isLoading ? (
+          <p className="mt-10 text-sm text-[var(--color-muted)]">
+            Loading featured scholarships…
+          </p>
+        ) : null}
+
+        {isError ? (
+          <div className="mt-10 flex flex-wrap items-center gap-3 text-sm text-amber-800">
+            <span>Featured listings are temporarily unavailable.</span>
+            <Button variant="outline" size="sm" to="/scholarships">
+              Browse catalog
+            </Button>
+          </div>
+        ) : null}
+
+        {data && data.items.length > 0 ? (
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {data.items.map((scholarship) => (
+              <CatalogCard key={scholarship.id} scholarship={scholarship} />
+            ))}
+          </div>
+        ) : null}
+
+        {!isLoading && !isError && data?.items.length === 0 ? (
+          <p className="mt-10 text-sm text-[var(--color-muted)]">
+            No published scholarships yet. Check back soon or browse the full catalog.
+          </p>
+        ) : null}
       </div>
     </section>
   )

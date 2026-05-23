@@ -7,14 +7,9 @@ import { PopularDestinationsSection } from '../../components/landing/PopularDest
 import { ScholarshipSearchSection } from '../../components/landing/ScholarshipSearchSection'
 import { TrustAndVerificationSection } from '../../components/landing/TrustAndVerificationSection'
 import { WhyAfScholarshipsSection } from '../../components/landing/WhyAfScholarshipsSection'
-import { Footer } from '../../components/layout/Footer'
-import { PublicNavbar } from '../../components/layout/PublicNavbar'
-
 export function LandingPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[var(--color-bg)]">
-      <PublicNavbar />
-      <main>
+    <main>
         <HeroSection />
         <ScholarshipSearchSection />
         <FeaturedScholarshipsSection />
@@ -24,8 +19,6 @@ export function LandingPage() {
         <TrustAndVerificationSection />
         <GuidesSection />
         <CTASection />
-      </main>
-      <Footer />
-    </div>
+    </main>
   )
 }

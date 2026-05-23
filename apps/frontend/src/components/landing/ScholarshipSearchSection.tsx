@@ -1,29 +1,75 @@
 import { Search } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   countryOptions,
   degreeLevelOptions,
   fundingTypeOptions,
   quickFilterChips,
 } from '../../data/landing'
+import { buildScholarshipSearchParams } from '../../features/scholarships/search-params'
+import type { DegreeLevel, FundingType } from '../../features/scholarships/types'
 import { Button } from '../ui/Button'
 import { cn } from '../../lib/cn'
 
+const chipToParams: Record<
+  string,
+  { fundingType?: FundingType; degreeLevel?: DegreeLevel; country?: string; tag?: string }
+> = {
+  'Fully funded': { fundingType: 'FULL' },
+  'Without IELTS': { tag: 'no-ielts' },
+  Bachelor: { degreeLevel: 'BACHELOR' },
+  Master: { degreeLevel: 'MASTER' },
+  Germany: { country: 'Germany' },
+  Türkiye: { country: 'Turkey' },
+  'Deadline this month': {},
+}
+
 export function ScholarshipSearchSection() {
+  const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [degreeLevel, setDegreeLevel] = useState('')
   const [country, setCountry] = useState('')
   const [fundingType, setFundingType] = useState('')
-  const [activeChips, setActiveChips] = useState<string[]>([])
+  const [activeChip, setActiveChip] = useState<string | null>(null)
 
-  const toggleChip = (chip: string) => {
-    setActiveChips((prev) =>
-      prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip],
-    )
+  const goToCatalog = (overrides?: {
+    search?: string
+    country?: string
+    degreeLevel?: DegreeLevel
+    fundingType?: FundingType
+    tag?: string
+  }) => {
+    const params = buildScholarshipSearchParams({
+      page: 1,
+      limit: 12,
+      search: overrides?.search ?? (query.trim() || undefined),
+      country: overrides?.country ?? (country || undefined),
+      degreeLevel:
+        overrides?.degreeLevel ??
+        (degreeLevel ? (degreeLevel as DegreeLevel) : undefined),
+      fundingType:
+        overrides?.fundingType ??
+        (fundingType ? (fundingType as FundingType) : undefined),
+      tag: overrides?.tag,
+    })
+    navigate(`/scholarships?${params.toString()}`)
   }
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    goToCatalog()
+  }
+
+  const toggleChip = (chip: string) => {
+    const next = activeChip === chip ? null : chip
+    setActiveChip(next)
+    if (next) {
+      const mapped = chipToParams[next]
+      if (mapped) {
+        goToCatalog(mapped)
+      }
+    }
   }
 
   const selectClassName =
@@ -140,7 +186,7 @@ export function ScholarshipSearchSection() {
                 onClick={() => toggleChip(chip)}
                 className={cn(
                   'rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-                  activeChips.includes(chip)
+                  activeChip === chip
                     ? 'bg-[var(--color-primary)] text-white'
                     : 'bg-slate-100 text-[var(--color-muted)] hover:bg-blue-50 hover:text-[var(--color-primary)]',
                 )}

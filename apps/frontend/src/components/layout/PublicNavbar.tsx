@@ -1,13 +1,22 @@
 import { GraduationCap, Menu, X } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { navLinks } from '../../data/landing'
 import { useAuth } from '../../features/auth/hooks'
 import { Button } from '../ui/Button'
 import { cn } from '../../lib/cn'
 
 export function PublicNavbar() {
+  const { pathname } = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const linkClass = (href: string) =>
+    cn(
+      'text-sm font-medium transition-colors',
+      pathname === href || (href !== '/' && pathname.startsWith(href))
+        ? 'text-[var(--color-primary)]'
+        : 'text-[var(--color-muted)] hover:text-[var(--color-primary)]',
+    )
   const { isAuthenticated, isAdmin, user, hydrated } = useAuth()
   const showAuth = hydrated && isAuthenticated
 
@@ -32,11 +41,7 @@ export function PublicNavbar() {
           aria-label="Main navigation"
         >
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              to={link.href}
-              className="text-sm font-medium text-[var(--color-muted)] transition-colors hover:text-[var(--color-primary)]"
-            >
+            <Link key={link.href} to={link.href} className={linkClass(link.href)}>
               {link.label}
             </Link>
           ))}
@@ -100,7 +105,12 @@ export function PublicNavbar() {
             <Link
               key={link.href}
               to={link.href}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-primary-soft)]"
+              className={cn(
+                'rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-[var(--color-primary-soft)]',
+                pathname === link.href
+                  ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary)]'
+                  : 'text-[var(--color-text)]',
+              )}
               onClick={() => setMobileOpen(false)}
             >
               {link.label}

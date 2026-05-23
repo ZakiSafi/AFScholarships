@@ -4,8 +4,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { hydrateFromStorage } from '../features/auth/authSlice'
 import { useAppDispatch } from '../hooks'
 import { store } from '../store'
-import '../services/catalogApi'
-
 function AuthHydrator({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
 
