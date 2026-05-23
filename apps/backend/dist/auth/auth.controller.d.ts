@@ -54,17 +54,17 @@ export declare class AuthController {
         user: GoogleProfile;
     }, res: Response): Promise<void>;
     profile(user: AuthUser): import("@prisma/client").Prisma.Prisma__UserClient<{
+        name: string | null;
         id: string;
         createdAt: Date;
         email: string;
-        name: string | null;
         role: import("@prisma/client").$Enums.UserRole;
         emailVerifiedAt: Date | null;
         profile: {
-            userId: string;
+            fieldOfStudy: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fieldOfStudy: string | null;
+            userId: string;
             country: string | null;
             educationLevel: string | null;
             avatarUrl: string | null;
@@ -77,9 +77,9 @@ export declare class AuthController {
             linkedinUrl: string | null;
         } | null;
         preference: {
-            userId: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             locale: string;
             timezone: string;
             emailDigestEnabled: boolean;

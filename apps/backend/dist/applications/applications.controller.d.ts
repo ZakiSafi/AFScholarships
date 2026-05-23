@@ -5,10 +5,19 @@ export declare class ApplicationsController {
     private readonly applicationsService;
     constructor(applicationsService: ApplicationsService);
     createPartnerApplication(scholarshipId: string, user: AuthUser, payload: CreatePartnerApplicationDto): Promise<{
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             isPartnerApplication: boolean;
             deadlineAt: Date;
@@ -20,32 +29,23 @@ export declare class ApplicationsController {
             answer: string;
         }[];
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
-        attachments: {
-            id: string;
-            applicationId: string;
-            fileName: string;
-            fileUrl: string;
-            mimeType: string | null;
-            sizeBytes: number | null;
-            uploadedAt: Date;
-        }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;
@@ -55,10 +55,19 @@ export declare class ApplicationsController {
         reviewedAt: Date | null;
     }>;
     listMine(user: AuthUser): Promise<({
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             isPartnerApplication: boolean;
             deadlineAt: Date;
@@ -70,32 +79,23 @@ export declare class ApplicationsController {
             answer: string;
         }[];
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
-        attachments: {
-            id: string;
-            applicationId: string;
-            fileName: string;
-            fileUrl: string;
-            mimeType: string | null;
-            sizeBytes: number | null;
-            uploadedAt: Date;
-        }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;
@@ -106,14 +106,23 @@ export declare class ApplicationsController {
     })[]>;
     getById(id: string, user: AuthUser): Promise<{
         user: {
+            name: string | null;
             id: string;
             email: string;
-            name: string | null;
         };
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             isPartnerApplication: boolean;
             deadlineAt: Date;
@@ -125,32 +134,23 @@ export declare class ApplicationsController {
             answer: string;
         }[];
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
-        attachments: {
-            id: string;
-            applicationId: string;
-            fileName: string;
-            fileUrl: string;
-            mimeType: string | null;
-            sizeBytes: number | null;
-            uploadedAt: Date;
-        }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;

@@ -17,7 +17,19 @@ declare const _default: () => {
     mail: {
         host: string;
         port: number;
+        secure: boolean;
+        user: string;
+        password: string;
         from: string;
+    };
+    jobs: {
+        enabled: boolean;
+        staleScholarshipCron: string;
+        reminderSenderCron: string;
+        digestSenderCron: string;
+        notificationRetryCron: string;
+        staleDays: number;
+        notificationMaxRetries: number;
     };
 };
 export default _default;

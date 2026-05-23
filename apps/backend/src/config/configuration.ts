@@ -19,6 +19,18 @@ export default () => ({
   mail: {
     host: process.env.MAIL_HOST ?? 'mailhog',
     port: parseInt(process.env.MAIL_PORT ?? '1025', 10),
+    secure: process.env.MAIL_SECURE === 'true',
+    user: process.env.MAIL_USER ?? '',
+    password: process.env.MAIL_PASSWORD ?? '',
     from: process.env.MAIL_FROM ?? 'noreply@afscholarships.dev',
+  },
+  jobs: {
+    enabled: process.env.JOBS_ENABLED !== 'false',
+    staleScholarshipCron: process.env.JOB_STALE_SCHOLARSHIP_CRON ?? '0 2 * * *',
+    reminderSenderCron: process.env.JOB_REMINDER_SENDER_CRON ?? '*/15 * * * *',
+    digestSenderCron: process.env.JOB_DIGEST_SENDER_CRON ?? '0 8 * * 1',
+    notificationRetryCron: process.env.JOB_NOTIFICATION_RETRY_CRON ?? '0 */6 * * *',
+    staleDays: parseInt(process.env.JOB_STALE_DAYS ?? '30', 10),
+    notificationMaxRetries: parseInt(process.env.JOB_NOTIFICATION_MAX_RETRIES ?? '3', 10),
   },
 })

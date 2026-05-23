@@ -5,10 +5,10 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     list(query: ListUsersDto): Promise<{
         items: {
+            name: string | null;
             id: string;
             createdAt: Date;
             email: string;
-            name: string | null;
             role: import("@prisma/client").$Enums.UserRole;
             emailVerifiedAt: Date | null;
             isActive: boolean;
@@ -24,18 +24,18 @@ export declare class UsersService {
         totalPages: number;
     }>;
     getById(id: string): Promise<{
+        name: string | null;
         id: string;
         createdAt: Date;
         email: string;
-        name: string | null;
         role: import("@prisma/client").$Enums.UserRole;
         emailVerifiedAt: Date | null;
         isActive: boolean;
         profile: {
-            userId: string;
+            fieldOfStudy: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fieldOfStudy: string | null;
+            userId: string;
             country: string | null;
             educationLevel: string | null;
             avatarUrl: string | null;
@@ -48,9 +48,9 @@ export declare class UsersService {
             linkedinUrl: string | null;
         } | null;
         preference: {
-            userId: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             locale: string;
             timezone: string;
             emailDigestEnabled: boolean;

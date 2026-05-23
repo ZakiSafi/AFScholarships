@@ -5,6 +5,7 @@ import { ApplicationsModule } from './applications/applications.module'
 import { AuthModule } from './auth/auth.module'
 import { AppConfigModule } from './config/config.module'
 import { HealthModule } from './health/health.module'
+import { JobsModule } from './jobs/jobs.module'
 import { MailerModule } from './mailer/mailer.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { ProfilesModule } from './profiles/profiles.module'
@@ -26,6 +27,7 @@ import { UsersModule } from './users/users.module'
     SavedItemsModule,
     ApplicationsModule,
     RemindersModule,
+    JobsModule,
     AdminModule,
   ],
   controllers: [AppController],

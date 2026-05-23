@@ -4,10 +4,19 @@ export declare class ApplicationsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     applyToPartnerScholarship(scholarshipId: string, userId: string, payload: CreatePartnerApplicationDto): Promise<{
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             isPartnerApplication: boolean;
             deadlineAt: Date;
@@ -19,32 +28,23 @@ export declare class ApplicationsService {
             answer: string;
         }[];
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
-        attachments: {
-            id: string;
-            applicationId: string;
-            fileName: string;
-            fileUrl: string;
-            mimeType: string | null;
-            sizeBytes: number | null;
-            uploadedAt: Date;
-        }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;
@@ -54,10 +54,19 @@ export declare class ApplicationsService {
         reviewedAt: Date | null;
     }>;
     listMine(userId: string): Promise<({
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             isPartnerApplication: boolean;
             deadlineAt: Date;
@@ -69,32 +78,23 @@ export declare class ApplicationsService {
             answer: string;
         }[];
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
-        attachments: {
-            id: string;
-            applicationId: string;
-            fileName: string;
-            fileUrl: string;
-            mimeType: string | null;
-            sizeBytes: number | null;
-            uploadedAt: Date;
-        }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;
@@ -105,14 +105,23 @@ export declare class ApplicationsService {
     })[]>;
     getById(applicationId: string, userId: string, isAdmin: boolean): Promise<{
         user: {
+            name: string | null;
             id: string;
             email: string;
-            name: string | null;
         };
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             isPartnerApplication: boolean;
             deadlineAt: Date;
@@ -124,32 +133,23 @@ export declare class ApplicationsService {
             answer: string;
         }[];
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
-        attachments: {
-            id: string;
-            applicationId: string;
-            fileName: string;
-            fileUrl: string;
-            mimeType: string | null;
-            sizeBytes: number | null;
-            uploadedAt: Date;
-        }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;

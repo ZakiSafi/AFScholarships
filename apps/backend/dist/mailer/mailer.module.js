@@ -8,13 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailerModule = void 0;
 const common_1 = require("@nestjs/common");
+const mailer_constants_1 = require("./mailer.constants");
 const mailer_service_1 = require("./mailer.service");
+const nodemailer_provider_1 = require("./providers/nodemailer.provider");
 let MailerModule = class MailerModule {
 };
 exports.MailerModule = MailerModule;
 exports.MailerModule = MailerModule = __decorate([
     (0, common_1.Module)({
-        providers: [mailer_service_1.MailerService],
+        providers: [
+            {
+                provide: mailer_constants_1.MAIL_PROVIDER,
+                useClass: nodemailer_provider_1.NodemailerMailProvider,
+            },
+            mailer_service_1.MailerService,
+        ],
         exports: [mailer_service_1.MailerService],
     })
 ], MailerModule);

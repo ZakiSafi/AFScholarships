@@ -14,6 +14,7 @@ const applications_module_1 = require("./applications/applications.module");
 const auth_module_1 = require("./auth/auth.module");
 const config_module_1 = require("./config/config.module");
 const health_module_1 = require("./health/health.module");
+const jobs_module_1 = require("./jobs/jobs.module");
 const mailer_module_1 = require("./mailer/mailer.module");
 const prisma_module_1 = require("./prisma/prisma.module");
 const profiles_module_1 = require("./profiles/profiles.module");
@@ -38,6 +39,7 @@ exports.AppModule = AppModule = __decorate([
             saved_items_module_1.SavedItemsModule,
             applications_module_1.ApplicationsModule,
             reminders_module_1.RemindersModule,
+            jobs_module_1.JobsModule,
             admin_module_1.AdminModule,
         ],
         controllers: [app_controller_1.AppController],

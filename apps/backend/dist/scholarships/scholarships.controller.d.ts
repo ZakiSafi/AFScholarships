@@ -77,24 +77,21 @@ export declare class ScholarshipsController {
         items: ({
             tags: ({
                 tag: {
-                    id: string;
-                    createdAt: Date;
-                    slug: string;
                     name: string;
+                    id: string;
+                    slug: string;
+                    createdAt: Date;
                 };
             } & {
                 scholarshipId: string;
                 tagId: string;
             })[];
         } & {
-            description: string;
-            title: string;
-            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             slug: string;
+            title: string;
             summary: string;
+            description: string;
             provider: string;
             hostCountry: string;
             degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -106,6 +103,7 @@ export declare class ScholarshipsController {
             maxAge: number | null;
             applicationUrl: string | null;
             isPartnerApplication: boolean;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             startsAt: Date | null;
             deadlineAt: Date;
             deadlineTimezone: string;
@@ -114,6 +112,8 @@ export declare class ScholarshipsController {
             lastReviewedAt: Date | null;
             isFeatured: boolean;
             createdById: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
         page: number;
         limit: number;
@@ -158,24 +158,21 @@ export declare class ScholarshipsController {
         items: ({
             tags: ({
                 tag: {
-                    id: string;
-                    createdAt: Date;
-                    slug: string;
                     name: string;
+                    id: string;
+                    slug: string;
+                    createdAt: Date;
                 };
             } & {
                 scholarshipId: string;
                 tagId: string;
             })[];
         } & {
-            description: string;
-            title: string;
-            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             slug: string;
+            title: string;
             summary: string;
+            description: string;
             provider: string;
             hostCountry: string;
             degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -187,6 +184,7 @@ export declare class ScholarshipsController {
             maxAge: number | null;
             applicationUrl: string | null;
             isPartnerApplication: boolean;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             startsAt: Date | null;
             deadlineAt: Date;
             deadlineTimezone: string;
@@ -195,6 +193,8 @@ export declare class ScholarshipsController {
             lastReviewedAt: Date | null;
             isFeatured: boolean;
             createdById: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
         page: number;
         limit: number;
@@ -205,9 +205,9 @@ export declare class ScholarshipsController {
     }>;
     related(slug: string, limit?: string): Promise<{
         items: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             summary: string;
             provider: string;
             hostCountry: string;
@@ -222,58 +222,58 @@ export declare class ScholarshipsController {
     }>;
     getBySlug(slug: string): Promise<{
         requirements: {
-            description: string;
             id: string;
-            scholarshipId: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             label: string;
             isMandatory: boolean;
         }[];
         benefits: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
         }[];
         steps: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             isRequired: boolean;
         }[];
         faqs: {
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             answer: string;
             orderIndex: number;
             question: string;
         }[];
         sources: {
+            url: string;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             label: string;
-            url: string;
             lastCheckedAt: Date | null;
         }[];
         tags: ({
             tag: {
-                id: string;
-                createdAt: Date;
-                slug: string;
                 name: string;
+                id: string;
+                slug: string;
+                createdAt: Date;
             };
         } & {
             scholarshipId: string;
@@ -281,28 +281,25 @@ export declare class ScholarshipsController {
         })[];
         verificationReviews: ({
             reviewer: {
+                name: string | null;
                 id: string;
                 email: string;
-                name: string | null;
             };
         } & {
-            note: string | null;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
+            scholarshipId: string;
             previousStatus: import("@prisma/client").$Enums.VerificationStatus;
             newStatus: import("@prisma/client").$Enums.VerificationStatus;
+            note: string | null;
             reviewerId: string;
         })[];
     } & {
-        description: string;
-        title: string;
-        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        title: string;
         summary: string;
+        description: string;
         provider: string;
         hostCountry: string;
         degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -314,6 +311,7 @@ export declare class ScholarshipsController {
         maxAge: number | null;
         applicationUrl: string | null;
         isPartnerApplication: boolean;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         startsAt: Date | null;
         deadlineAt: Date;
         deadlineTimezone: string;
@@ -322,73 +320,75 @@ export declare class ScholarshipsController {
         lastReviewedAt: Date | null;
         isFeatured: boolean;
         createdById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     report(scholarshipId: string, payload: ReportListingDto, user: AuthUser): Promise<{
-        status: import("@prisma/client").$Enums.ReportStatus;
         id: string;
-        scholarshipId: string;
+        status: import("@prisma/client").$Enums.ReportStatus;
+        createdAt: Date;
+        updatedAt: Date;
         userId: string | null;
-        reviewedById: string | null;
+        scholarshipId: string;
         reason: string;
         details: string | null;
         resolvedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
+        reviewedById: string | null;
     }>;
     create(payload: CreateScholarshipDto, user: AuthUser): Promise<{
         requirements: {
-            description: string;
             id: string;
-            scholarshipId: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             label: string;
             isMandatory: boolean;
         }[];
         benefits: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
         }[];
         steps: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             isRequired: boolean;
         }[];
         faqs: {
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             answer: string;
             orderIndex: number;
             question: string;
         }[];
         sources: {
+            url: string;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             label: string;
-            url: string;
             lastCheckedAt: Date | null;
         }[];
         tags: ({
             tag: {
-                id: string;
-                createdAt: Date;
-                slug: string;
                 name: string;
+                id: string;
+                slug: string;
+                createdAt: Date;
             };
         } & {
             scholarshipId: string;
@@ -396,28 +396,25 @@ export declare class ScholarshipsController {
         })[];
         verificationReviews: ({
             reviewer: {
+                name: string | null;
                 id: string;
                 email: string;
-                name: string | null;
             };
         } & {
-            note: string | null;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
+            scholarshipId: string;
             previousStatus: import("@prisma/client").$Enums.VerificationStatus;
             newStatus: import("@prisma/client").$Enums.VerificationStatus;
+            note: string | null;
             reviewerId: string;
         })[];
     } & {
-        description: string;
-        title: string;
-        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        title: string;
         summary: string;
+        description: string;
         provider: string;
         hostCountry: string;
         degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -429,6 +426,7 @@ export declare class ScholarshipsController {
         maxAge: number | null;
         applicationUrl: string | null;
         isPartnerApplication: boolean;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         startsAt: Date | null;
         deadlineAt: Date;
         deadlineTimezone: string;
@@ -437,61 +435,63 @@ export declare class ScholarshipsController {
         lastReviewedAt: Date | null;
         isFeatured: boolean;
         createdById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     update(id: string, payload: UpdateScholarshipDto): Promise<{
         requirements: {
-            description: string;
             id: string;
-            scholarshipId: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             label: string;
             isMandatory: boolean;
         }[];
         benefits: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
         }[];
         steps: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             isRequired: boolean;
         }[];
         faqs: {
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             answer: string;
             orderIndex: number;
             question: string;
         }[];
         sources: {
+            url: string;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             label: string;
-            url: string;
             lastCheckedAt: Date | null;
         }[];
         tags: ({
             tag: {
-                id: string;
-                createdAt: Date;
-                slug: string;
                 name: string;
+                id: string;
+                slug: string;
+                createdAt: Date;
             };
         } & {
             scholarshipId: string;
@@ -499,28 +499,25 @@ export declare class ScholarshipsController {
         })[];
         verificationReviews: ({
             reviewer: {
+                name: string | null;
                 id: string;
                 email: string;
-                name: string | null;
             };
         } & {
-            note: string | null;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
+            scholarshipId: string;
             previousStatus: import("@prisma/client").$Enums.VerificationStatus;
             newStatus: import("@prisma/client").$Enums.VerificationStatus;
+            note: string | null;
             reviewerId: string;
         })[];
     } & {
-        description: string;
-        title: string;
-        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        title: string;
         summary: string;
+        description: string;
         provider: string;
         hostCountry: string;
         degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -532,6 +529,7 @@ export declare class ScholarshipsController {
         maxAge: number | null;
         applicationUrl: string | null;
         isPartnerApplication: boolean;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         startsAt: Date | null;
         deadlineAt: Date;
         deadlineTimezone: string;
@@ -540,61 +538,63 @@ export declare class ScholarshipsController {
         lastReviewedAt: Date | null;
         isFeatured: boolean;
         createdById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     publish(id: string, user: AuthUser): Promise<{
         requirements: {
-            description: string;
             id: string;
-            scholarshipId: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             label: string;
             isMandatory: boolean;
         }[];
         benefits: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
         }[];
         steps: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             isRequired: boolean;
         }[];
         faqs: {
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             answer: string;
             orderIndex: number;
             question: string;
         }[];
         sources: {
+            url: string;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             label: string;
-            url: string;
             lastCheckedAt: Date | null;
         }[];
         tags: ({
             tag: {
-                id: string;
-                createdAt: Date;
-                slug: string;
                 name: string;
+                id: string;
+                slug: string;
+                createdAt: Date;
             };
         } & {
             scholarshipId: string;
@@ -602,28 +602,25 @@ export declare class ScholarshipsController {
         })[];
         verificationReviews: ({
             reviewer: {
+                name: string | null;
                 id: string;
                 email: string;
-                name: string | null;
             };
         } & {
-            note: string | null;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
+            scholarshipId: string;
             previousStatus: import("@prisma/client").$Enums.VerificationStatus;
             newStatus: import("@prisma/client").$Enums.VerificationStatus;
+            note: string | null;
             reviewerId: string;
         })[];
     } & {
-        description: string;
-        title: string;
-        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        title: string;
         summary: string;
+        description: string;
         provider: string;
         hostCountry: string;
         degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -635,6 +632,7 @@ export declare class ScholarshipsController {
         maxAge: number | null;
         applicationUrl: string | null;
         isPartnerApplication: boolean;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         startsAt: Date | null;
         deadlineAt: Date;
         deadlineTimezone: string;
@@ -643,61 +641,63 @@ export declare class ScholarshipsController {
         lastReviewedAt: Date | null;
         isFeatured: boolean;
         createdById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     archive(id: string, user: AuthUser): Promise<{
         requirements: {
-            description: string;
             id: string;
-            scholarshipId: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             label: string;
             isMandatory: boolean;
         }[];
         benefits: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
         }[];
         steps: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             isRequired: boolean;
         }[];
         faqs: {
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             answer: string;
             orderIndex: number;
             question: string;
         }[];
         sources: {
+            url: string;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             label: string;
-            url: string;
             lastCheckedAt: Date | null;
         }[];
         tags: ({
             tag: {
-                id: string;
-                createdAt: Date;
-                slug: string;
                 name: string;
+                id: string;
+                slug: string;
+                createdAt: Date;
             };
         } & {
             scholarshipId: string;
@@ -705,28 +705,25 @@ export declare class ScholarshipsController {
         })[];
         verificationReviews: ({
             reviewer: {
+                name: string | null;
                 id: string;
                 email: string;
-                name: string | null;
             };
         } & {
-            note: string | null;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
+            scholarshipId: string;
             previousStatus: import("@prisma/client").$Enums.VerificationStatus;
             newStatus: import("@prisma/client").$Enums.VerificationStatus;
+            note: string | null;
             reviewerId: string;
         })[];
     } & {
-        description: string;
-        title: string;
-        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        title: string;
         summary: string;
+        description: string;
         provider: string;
         hostCountry: string;
         degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -738,6 +735,7 @@ export declare class ScholarshipsController {
         maxAge: number | null;
         applicationUrl: string | null;
         isPartnerApplication: boolean;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         startsAt: Date | null;
         deadlineAt: Date;
         deadlineTimezone: string;
@@ -746,61 +744,63 @@ export declare class ScholarshipsController {
         lastReviewedAt: Date | null;
         isFeatured: boolean;
         createdById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     verify(id: string, payload: VerifyScholarshipDto, user: AuthUser): Promise<{
         requirements: {
-            description: string;
             id: string;
-            scholarshipId: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             label: string;
             isMandatory: boolean;
         }[];
         benefits: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
         }[];
         steps: {
-            description: string;
-            title: string;
             id: string;
-            scholarshipId: string;
+            title: string;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             orderIndex: number;
             isRequired: boolean;
         }[];
         faqs: {
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             answer: string;
             orderIndex: number;
             question: string;
         }[];
         sources: {
+            url: string;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
             updatedAt: Date;
+            scholarshipId: string;
             label: string;
-            url: string;
             lastCheckedAt: Date | null;
         }[];
         tags: ({
             tag: {
-                id: string;
-                createdAt: Date;
-                slug: string;
                 name: string;
+                id: string;
+                slug: string;
+                createdAt: Date;
             };
         } & {
             scholarshipId: string;
@@ -808,28 +808,25 @@ export declare class ScholarshipsController {
         })[];
         verificationReviews: ({
             reviewer: {
+                name: string | null;
                 id: string;
                 email: string;
-                name: string | null;
             };
         } & {
-            note: string | null;
             id: string;
-            scholarshipId: string;
             createdAt: Date;
+            scholarshipId: string;
             previousStatus: import("@prisma/client").$Enums.VerificationStatus;
             newStatus: import("@prisma/client").$Enums.VerificationStatus;
+            note: string | null;
             reviewerId: string;
         })[];
     } & {
-        description: string;
-        title: string;
-        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
+        title: string;
         summary: string;
+        description: string;
         provider: string;
         hostCountry: string;
         degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -841,6 +838,7 @@ export declare class ScholarshipsController {
         maxAge: number | null;
         applicationUrl: string | null;
         isPartnerApplication: boolean;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         startsAt: Date | null;
         deadlineAt: Date;
         deadlineTimezone: string;
@@ -849,5 +847,7 @@ export declare class ScholarshipsController {
         lastReviewedAt: Date | null;
         isFeatured: boolean;
         createdById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
 }

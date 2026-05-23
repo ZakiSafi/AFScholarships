@@ -12,31 +12,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const jobs_service_1 = require("../jobs/jobs.service");
 const prisma_service_1 = require("../prisma/prisma.service");
+const reports_service_1 = require("../reports/reports.service");
 let AdminService = class AdminService {
     prisma;
-    constructor(prisma) {
+    jobsService;
+    reportsService;
+    constructor(prisma, jobsService, reportsService) {
         this.prisma = prisma;
+        this.jobsService = jobsService;
+        this.reportsService = reportsService;
     }
     listReports(status) {
-        return this.prisma.listingReport.findMany({
-            where: status ? { status } : undefined,
-            include: {
-                scholarship: {
-                    select: {
-                        id: true,
-                        slug: true,
-                        title: true,
-                        provider: true,
-                        verificationStatus: true,
-                    },
-                },
-                user: {
-                    select: { id: true, email: true, name: true },
-                },
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+        return this.reportsService.listForModeration(status);
     }
     async resolveReport(reportId, status, reviewerId) {
         if (status === client_1.ReportStatus.OPEN) {
@@ -155,26 +144,125 @@ let AdminService = class AdminService {
             totalPages: Math.ceil(total / limit),
         };
     }
-    async flagStaleScholarships(staleDays = 30) {
-        const threshold = new Date();
-        threshold.setDate(threshold.getDate() - staleDays);
-        const result = await this.prisma.scholarship.updateMany({
-            where: {
-                OR: [
-                    { lastReviewedAt: null },
-                    { lastReviewedAt: { lt: threshold } },
-                ],
-            },
-            data: {
-                verificationStatus: client_1.VerificationStatus.FLAGGED_STALE,
-            },
+    async flagStaleScholarships(staleDays = 30, actorId) {
+        void staleDays;
+        return this.jobsService.runStaleScholarshipCheck(actorId);
+    }
+    async bulkVerify(payload, reviewerId) {
+        const status = payload.status ?? client_1.VerificationStatus.VERIFIED;
+        const results = [];
+        for (const id of payload.scholarshipIds) {
+            try {
+                const scholarship = await this.prisma.scholarship.findUnique({
+                    where: { id },
+                });
+                if (!scholarship) {
+                    results.push({ id, success: false, error: 'Not found' });
+                    continue;
+                }
+                await this.prisma.$transaction(async (tx) => {
+                    await tx.scholarship.update({
+                        where: { id },
+                        data: {
+                            verificationStatus: status,
+                            verifiedAt: status === client_1.VerificationStatus.VERIFIED ? new Date() : null,
+                            lastReviewedAt: new Date(),
+                        },
+                    });
+                    await tx.verificationReview.create({
+                        data: {
+                            scholarshipId: id,
+                            reviewerId,
+                            previousStatus: scholarship.verificationStatus,
+                            newStatus: status,
+                            note: payload.note,
+                        },
+                    });
+                    await tx.moderationActionLog.create({
+                        data: {
+                            actorId: reviewerId,
+                            entityType: 'scholarship',
+                            entityId: id,
+                            action: 'bulk_verify',
+                            metadata: { status, note: payload.note },
+                        },
+                    });
+                });
+                results.push({ id, success: true });
+            }
+            catch (error) {
+                results.push({
+                    id,
+                    success: false,
+                    error: error instanceof Error ? error.message : 'Failed',
+                });
+            }
+        }
+        return {
+            total: payload.scholarshipIds.length,
+            succeeded: results.filter((r) => r.success).length,
+            failed: results.filter((r) => !r.success).length,
+            results,
+        };
+    }
+    async bulkArchiveExpired(payload, actorId) {
+        const now = new Date();
+        const where = {
+            status: client_1.ScholarshipStatus.PUBLISHED,
+            deadlineAt: { lt: now },
+        };
+        const expired = await this.prisma.scholarship.findMany({
+            where,
+            select: { id: true, slug: true, title: true },
         });
-        return { flaggedCount: result.count, staleDays };
+        if (payload.dryRun) {
+            return { dryRun: true, count: expired.length, scholarships: expired };
+        }
+        if (!expired.length) {
+            return { archivedCount: 0, scholarships: [] };
+        }
+        await this.prisma.$transaction(async (tx) => {
+            await tx.scholarship.updateMany({
+                where: { id: { in: expired.map((s) => s.id) } },
+                data: { status: client_1.ScholarshipStatus.ARCHIVED },
+            });
+            for (const scholarship of expired) {
+                await tx.moderationActionLog.create({
+                    data: {
+                        actorId,
+                        entityType: 'scholarship',
+                        entityId: scholarship.id,
+                        action: 'bulk_archive_expired',
+                        metadata: { slug: scholarship.slug, title: scholarship.title },
+                    },
+                });
+            }
+        });
+        return {
+            archivedCount: expired.length,
+            scholarships: expired,
+        };
+    }
+    async runJob(job, actorId) {
+        switch (job) {
+            case 'stale-scholarships':
+                return this.jobsService.runStaleScholarshipCheck(actorId);
+            case 'reminder-sender':
+                return this.jobsService.runReminderSender();
+            case 'digest-sender':
+                return this.jobsService.runDigestSender();
+            case 'notification-retry':
+                return this.jobsService.runNotificationRetry();
+            default:
+                throw new common_1.BadRequestException(`Unknown job: ${job}`);
+        }
     }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        jobs_service_1.JobsService,
+        reports_service_1.ReportsService])
 ], AdminService);
 //# sourceMappingURL=admin.service.js.map

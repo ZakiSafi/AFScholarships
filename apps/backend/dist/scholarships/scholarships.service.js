@@ -395,8 +395,17 @@ let ScholarshipsService = class ScholarshipsService {
         }
     }
     async seedScholarships() {
-        const count = await this.prisma.scholarship.count();
-        if (count > 0) {
+        await this.prisma.scholarship.updateMany({
+            where: {
+                slug: { in: ['turkiye-burslari', 'afscholars-partner-program'] },
+                status: client_1.ScholarshipStatus.DRAFT,
+            },
+            data: { status: client_1.ScholarshipStatus.PUBLISHED },
+        });
+        const publishedCount = await this.prisma.scholarship.count({
+            where: { status: client_1.ScholarshipStatus.PUBLISHED },
+        });
+        if (publishedCount > 0) {
             return;
         }
         const admin = await this.prisma.user.findFirst({

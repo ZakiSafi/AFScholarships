@@ -4,23 +4,23 @@ export declare class SavedItemsService {
     constructor(prisma: PrismaService);
     listForUser(userId: string): Promise<({
         scholarship: {
-            title: string;
-            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
             slug: string;
+            title: string;
             summary: string;
             provider: string;
             hostCountry: string;
             degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
             fundingType: import("@prisma/client").$Enums.FundingType;
             isPartnerApplication: boolean;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             deadlineAt: Date;
             verificationStatus: import("@prisma/client").$Enums.VerificationStatus;
         };
     } & {
-        scholarshipId: string;
-        userId: string;
         createdAt: Date;
+        userId: string;
+        scholarshipId: string;
     })[]>;
     isSaved(userId: string, scholarshipId: string): Promise<{
         saved: boolean;
@@ -28,15 +28,15 @@ export declare class SavedItemsService {
     }>;
     save(userId: string, scholarshipId: string): Promise<{
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             deadlineAt: Date;
         };
     } & {
-        scholarshipId: string;
-        userId: string;
         createdAt: Date;
+        userId: string;
+        scholarshipId: string;
     }>;
     remove(userId: string, scholarshipId: string): Promise<{
         success: boolean;

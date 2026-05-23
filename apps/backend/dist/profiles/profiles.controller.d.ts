@@ -6,17 +6,17 @@ export declare class ProfilesController {
     private readonly profilesService;
     constructor(profilesService: ProfilesService);
     getMine(user: AuthUser): Promise<{
+        name: string | null;
         id: string;
         createdAt: Date;
         email: string;
-        name: string | null;
         role: import("@prisma/client").$Enums.UserRole;
         emailVerifiedAt: Date | null;
         profile: {
-            userId: string;
+            fieldOfStudy: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fieldOfStudy: string | null;
+            userId: string;
             country: string | null;
             educationLevel: string | null;
             avatarUrl: string | null;
@@ -29,9 +29,9 @@ export declare class ProfilesController {
             linkedinUrl: string | null;
         } | null;
         preference: {
-            userId: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             locale: string;
             timezone: string;
             emailDigestEnabled: boolean;
@@ -41,10 +41,10 @@ export declare class ProfilesController {
         } | null;
     } | null>;
     updateProfile(user: AuthUser, payload: UpdateProfileDto): Promise<{
-        userId: string;
+        fieldOfStudy: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fieldOfStudy: string | null;
+        userId: string;
         country: string | null;
         educationLevel: string | null;
         avatarUrl: string | null;
@@ -57,9 +57,9 @@ export declare class ProfilesController {
         linkedinUrl: string | null;
     }>;
     updatePreference(user: AuthUser, payload: UpdatePreferenceDto): Promise<{
-        userId: string;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
         locale: string;
         timezone: string;
         emailDigestEnabled: boolean;

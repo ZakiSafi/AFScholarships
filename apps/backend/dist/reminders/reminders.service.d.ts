@@ -6,52 +6,49 @@ export declare class RemindersService {
     constructor(prisma: PrismaService);
     create(userId: string, scholarshipId: string, payload: CreateReminderDto): Promise<{
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             deadlineAt: Date;
         };
     } & {
-        status: import("@prisma/client").$Enums.ReminderStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
+        status: import("@prisma/client").$Enums.ReminderStatus;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
+        scholarshipId: string;
         reminderAt: Date;
         channel: import("@prisma/client").$Enums.ReminderChannel;
         sentAt: Date | null;
     }>;
     listMine(userId: string): Promise<({
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             hostCountry: string;
             deadlineAt: Date;
         };
     } & {
-        status: import("@prisma/client").$Enums.ReminderStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
+        status: import("@prisma/client").$Enums.ReminderStatus;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
+        scholarshipId: string;
         reminderAt: Date;
         channel: import("@prisma/client").$Enums.ReminderChannel;
         sentAt: Date | null;
     })[]>;
     update(reminderId: string, userId: string, payload: UpdateReminderDto): Promise<{
         scholarship: {
-            description: string;
-            title: string;
-            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             slug: string;
+            title: string;
             summary: string;
+            description: string;
             provider: string;
             hostCountry: string;
             degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -63,6 +60,7 @@ export declare class RemindersService {
             maxAge: number | null;
             applicationUrl: string | null;
             isPartnerApplication: boolean;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             startsAt: Date | null;
             deadlineAt: Date;
             deadlineTimezone: string;
@@ -71,14 +69,16 @@ export declare class RemindersService {
             lastReviewedAt: Date | null;
             isFeatured: boolean;
             createdById: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     } & {
-        status: import("@prisma/client").$Enums.ReminderStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
+        status: import("@prisma/client").$Enums.ReminderStatus;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
+        scholarshipId: string;
         reminderAt: Date;
         channel: import("@prisma/client").$Enums.ReminderChannel;
         sentAt: Date | null;
@@ -87,12 +87,12 @@ export declare class RemindersService {
         success: boolean;
     }>;
     markSent(reminderId: string): Promise<{
-        status: import("@prisma/client").$Enums.ReminderStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
+        status: import("@prisma/client").$Enums.ReminderStatus;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
+        scholarshipId: string;
         reminderAt: Date;
         channel: import("@prisma/client").$Enums.ReminderChannel;
         sentAt: Date | null;

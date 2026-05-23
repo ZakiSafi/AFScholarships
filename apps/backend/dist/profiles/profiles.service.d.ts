@@ -5,17 +5,17 @@ export declare class ProfilesService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     getMine(userId: string): Promise<{
+        name: string | null;
         id: string;
         createdAt: Date;
         email: string;
-        name: string | null;
         role: import("@prisma/client").$Enums.UserRole;
         emailVerifiedAt: Date | null;
         profile: {
-            userId: string;
+            fieldOfStudy: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fieldOfStudy: string | null;
+            userId: string;
             country: string | null;
             educationLevel: string | null;
             avatarUrl: string | null;
@@ -28,9 +28,9 @@ export declare class ProfilesService {
             linkedinUrl: string | null;
         } | null;
         preference: {
-            userId: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             locale: string;
             timezone: string;
             emailDigestEnabled: boolean;
@@ -40,10 +40,10 @@ export declare class ProfilesService {
         } | null;
     } | null>;
     updateProfile(userId: string, payload: UpdateProfileDto): Promise<{
-        userId: string;
+        fieldOfStudy: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fieldOfStudy: string | null;
+        userId: string;
         country: string | null;
         educationLevel: string | null;
         avatarUrl: string | null;
@@ -56,9 +56,9 @@ export declare class ProfilesService {
         linkedinUrl: string | null;
     }>;
     updatePreference(userId: string, payload: UpdatePreferenceDto): Promise<{
-        userId: string;
         createdAt: Date;
         updatedAt: Date;
+        userId: string;
         locale: string;
         timezone: string;
         emailDigestEnabled: boolean;

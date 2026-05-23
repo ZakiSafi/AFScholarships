@@ -1,77 +1,83 @@
 import { ApplicationStatus, Prisma, ReportStatus } from '@prisma/client';
+import { JobsService } from '../jobs/jobs.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ReportsService } from '../reports/reports.service';
 import { UpdateApplicationStatusDto } from '../applications/dto/update-application-status.dto';
+import { BulkArchiveExpiredDto } from './dto/bulk-archive.dto';
+import { BulkVerifyScholarshipsDto } from './dto/bulk-verify.dto';
 import { ListAuditLogsDto } from './dto/list-audit-logs.dto';
 export declare class AdminService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly jobsService;
+    private readonly reportsService;
+    constructor(prisma: PrismaService, jobsService: JobsService, reportsService: ReportsService);
     listReports(status?: ReportStatus): Prisma.PrismaPromise<({
         user: {
+            name: string | null;
             id: string;
             email: string;
-            name: string | null;
         } | null;
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
             verificationStatus: import("@prisma/client").$Enums.VerificationStatus;
         };
     } & {
-        status: import("@prisma/client").$Enums.ReportStatus;
         id: string;
-        scholarshipId: string;
+        status: import("@prisma/client").$Enums.ReportStatus;
+        createdAt: Date;
+        updatedAt: Date;
         userId: string | null;
-        reviewedById: string | null;
+        scholarshipId: string;
         reason: string;
         details: string | null;
         resolvedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
+        reviewedById: string | null;
     })[]>;
     resolveReport(reportId: string, status: ReportStatus, reviewerId: string): Promise<{
-        status: import("@prisma/client").$Enums.ReportStatus;
         id: string;
-        scholarshipId: string;
+        status: import("@prisma/client").$Enums.ReportStatus;
+        createdAt: Date;
+        updatedAt: Date;
         userId: string | null;
-        reviewedById: string | null;
+        scholarshipId: string;
         reason: string;
         details: string | null;
         resolvedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
+        reviewedById: string | null;
     }>;
     listApplications(status?: ApplicationStatus): Prisma.PrismaPromise<({
         user: {
+            name: string | null;
             id: string;
             email: string;
-            name: string | null;
         };
         scholarship: {
-            title: string;
             id: string;
             slug: string;
+            title: string;
             provider: string;
         };
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;
@@ -82,19 +88,16 @@ export declare class AdminService {
     })[]>;
     updateApplicationStatus(applicationId: string, payload: UpdateApplicationStatusDto, reviewerId: string): Promise<{
         user: {
+            name: string | null;
             id: string;
             email: string;
-            name: string | null;
         };
         scholarship: {
-            description: string;
-            title: string;
-            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             slug: string;
+            title: string;
             summary: string;
+            description: string;
             provider: string;
             hostCountry: string;
             degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
@@ -106,6 +109,7 @@ export declare class AdminService {
             maxAge: number | null;
             applicationUrl: string | null;
             isPartnerApplication: boolean;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             startsAt: Date | null;
             deadlineAt: Date;
             deadlineTimezone: string;
@@ -114,25 +118,27 @@ export declare class AdminService {
             lastReviewedAt: Date | null;
             isFeatured: boolean;
             createdById: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
         statusLogs: {
-            note: string | null;
             id: string;
             createdAt: Date;
+            note: string | null;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
             changedById: string | null;
             applicationId: string;
         }[];
     } & {
-        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
-        scholarshipId: string;
-        userId: string;
-        reviewedById: string | null;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         createdAt: Date;
         updatedAt: Date;
         email: string;
+        userId: string;
+        scholarshipId: string;
+        reviewedById: string | null;
         fullName: string;
         phone: string | null;
         country: string | null;
@@ -144,25 +150,70 @@ export declare class AdminService {
     listAuditLogs(query: ListAuditLogsDto): Promise<{
         items: ({
             actor: {
+                name: string | null;
                 id: string;
                 email: string;
-                name: string | null;
             };
         } & {
-            entityType: string;
-            entityId: string;
             id: string;
             createdAt: Date;
-            actorId: string;
+            entityType: string;
+            entityId: string;
             action: string;
             metadata: Prisma.JsonValue | null;
+            actorId: string;
         })[];
         page: number;
         limit: number;
         total: number;
         totalPages: number;
     }>;
-    flagStaleScholarships(staleDays?: number): Promise<{
+    flagStaleScholarships(staleDays?: number, actorId?: string): Promise<{
+        flaggedCount: number;
+        staleDays: number;
+    }>;
+    bulkVerify(payload: BulkVerifyScholarshipsDto, reviewerId: string): Promise<{
+        total: number;
+        succeeded: number;
+        failed: number;
+        results: {
+            id: string;
+            success: boolean;
+            error?: string;
+        }[];
+    }>;
+    bulkArchiveExpired(payload: BulkArchiveExpiredDto, actorId: string): Promise<{
+        dryRun: boolean;
+        count: number;
+        scholarships: {
+            id: string;
+            slug: string;
+            title: string;
+        }[];
+        archivedCount?: undefined;
+    } | {
+        archivedCount: number;
+        scholarships: {
+            id: string;
+            slug: string;
+            title: string;
+        }[];
+        dryRun?: undefined;
+        count?: undefined;
+    }>;
+    runJob(job: string, actorId?: string): Promise<{
+        users: number;
+        sent: number;
+        skipped: number;
+    } | {
+        retried: number;
+        succeeded: number;
+        maxRetries: number;
+    } | {
+        processed: number;
+        sent: number;
+        failed: number;
+    } | {
         flaggedCount: number;
         staleDays: number;
     }>;
