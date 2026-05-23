@@ -5,11 +5,11 @@ import { ScholarshipCardItem } from './ScholarshipCardItem'
 export function FeaturedScholarshipsSection() {
   return (
     <section
-      className="bg-[var(--color-surface)] py-16 lg:py-20"
+      className="bg-white py-16 sm:py-20"
       aria-labelledby="featured-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2
               id="featured-heading"
@@ -17,9 +17,8 @@ export function FeaturedScholarshipsSection() {
             >
               Featured scholarships
             </h2>
-            <p className="mt-2 max-w-2xl text-[var(--color-muted)]">
-              Hand-picked opportunities from official government and university
-              programs worldwide.
+            <p className="text-section-desc mt-2 max-w-xl">
+              Verified programs students are applying to right now.
             </p>
           </div>
           <Button variant="outline" to="/scholarships">

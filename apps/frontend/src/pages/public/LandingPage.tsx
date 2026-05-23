@@ -3,25 +3,25 @@ import { FeaturedScholarshipsSection } from '../../components/landing/FeaturedSc
 import { GuidesSection } from '../../components/landing/GuidesSection'
 import { HeroSection } from '../../components/landing/HeroSection'
 import { HowItWorksSection } from '../../components/landing/HowItWorksSection'
-import { SearchScholarshipsSection } from '../../components/landing/SearchScholarshipsSection'
-import { StatsSection } from '../../components/landing/StatsSection'
-import { TrustSection } from '../../components/landing/TrustSection'
+import { PopularDestinationsSection } from '../../components/landing/PopularDestinationsSection'
+import { ScholarshipSearchSection } from '../../components/landing/ScholarshipSearchSection'
+import { TrustAndVerificationSection } from '../../components/landing/TrustAndVerificationSection'
 import { WhyAfScholarshipsSection } from '../../components/landing/WhyAfScholarshipsSection'
 import { Footer } from '../../components/layout/Footer'
 import { PublicNavbar } from '../../components/layout/PublicNavbar'
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
+    <div className="min-h-screen overflow-x-hidden bg-[var(--color-bg)]">
       <PublicNavbar />
       <main>
         <HeroSection />
-        <SearchScholarshipsSection />
+        <ScholarshipSearchSection />
         <FeaturedScholarshipsSection />
         <HowItWorksSection />
         <WhyAfScholarshipsSection />
-        <StatsSection />
-        <TrustSection />
+        <PopularDestinationsSection />
+        <TrustAndVerificationSection />
         <GuidesSection />
         <CTASection />
       </main>

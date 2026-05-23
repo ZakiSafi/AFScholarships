@@ -1,4 +1,4 @@
-import { Menu, X, GraduationCap } from 'lucide-react'
+import { GraduationCap, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { navLinks } from '../../data/landing'
@@ -9,17 +9,17 @@ export function PublicNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+    <header className="nav-solid sticky top-0 z-50 border-b border-[var(--color-border)] shadow-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <Link
           to="/"
           className="flex min-w-0 items-center gap-2.5"
           aria-label="AfScholarships home"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)] text-white">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-primary)] via-blue-500 to-[var(--color-secondary)] text-white shadow-soft ring-2 ring-blue-100">
             <GraduationCap className="h-5 w-5" aria-hidden />
           </span>
-          <span className="truncate text-lg font-bold text-[var(--color-text)]">
+          <span className="truncate text-lg font-bold tracking-tight text-[var(--color-text)]">
             AfScholarships
           </span>
         </Link>
@@ -39,7 +39,7 @@ export function PublicNavbar() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Button variant="ghost" size="sm" to="/auth/login">
             Sign in
           </Button>
@@ -50,7 +50,7 @@ export function PublicNavbar() {
 
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-lg p-2 text-[var(--color-text)] lg:hidden"
+          className="inline-flex rounded-lg p-2 text-[var(--color-text)] lg:hidden"
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
@@ -67,7 +67,7 @@ export function PublicNavbar() {
       <div
         id="mobile-menu"
         className={cn(
-          'border-t border-[var(--color-border)] bg-[var(--color-surface)] lg:hidden',
+          'border-t border-[var(--color-border)] bg-[var(--color-surface)]/95 backdrop-blur-md lg:hidden',
           mobileOpen ? 'block' : 'hidden',
         )}
       >
@@ -79,14 +79,14 @@ export function PublicNavbar() {
             <Link
               key={link.href}
               to={link.href}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--color-text)] hover:bg-slate-50"
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-primary-soft)]"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
             </Link>
           ))}
           <div className="mt-3 flex flex-col gap-2 border-t border-[var(--color-border)] pt-4">
-            <Button variant="outline" to="/auth/login" className="w-full">
+            <Button variant="ghost" to="/auth/login" className="w-full">
               Sign in
             </Button>
             <Button to="/auth/signup" className="w-full">

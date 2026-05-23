@@ -1,6 +1,7 @@
 export type ScholarshipCard = {
   id: string
   title: string
+  description: string
   hostCountry: string
   degreeLevel: string
   fundingType: string
@@ -14,17 +15,13 @@ export type GuideCard = {
   title: string
   description: string
   readTime: string
+  category: string
 }
 
 export type HowItWorksStep = {
   step: number
   title: string
   description: string
-}
-
-export type StatItem = {
-  value: string
-  label: string
 }
 
 export type TrustPoint = {
@@ -37,6 +34,18 @@ export type BenefitItem = {
   description: string
 }
 
+export type DestinationCard = {
+  id: string
+  name: string
+  description: string
+  href: string
+}
+
+export type HeroDocument = {
+  label: string
+  done: boolean
+}
+
 export const navLinks = [
   { label: 'Scholarships', href: '/scholarships' },
   { label: 'Countries', href: '/countries' },
@@ -44,12 +53,34 @@ export const navLinks = [
   { label: 'About', href: '/about' },
 ] as const
 
-export const heroPreviewScholarship = {
-  title: 'Fully Funded Master Scholarship',
-  hostCountry: 'Germany',
-  deadline: 'March 15, 2026',
-  verified: true,
+export const heroScholarship = {
+  title: 'Türkiye Scholarships 2026',
+  country: 'Türkiye',
+  funding: 'Fully funded',
+  degree: 'Bachelor, Master, PhD',
+  deadline: 'Feb 20, 2026',
+  profileMatch: 86,
 }
+
+export const heroCountryChips = ['Germany', 'Türkiye', 'Japan', 'Qatar'] as const
+
+export const heroDocuments: HeroDocument[] = [
+  { label: 'Passport', done: true },
+  { label: 'Transcript', done: true },
+  { label: 'Motivation letter', done: false },
+]
+
+export const heroTrustIndicators = [
+  'Verified source links',
+  'Deadline reminders',
+  'Free for students',
+] as const
+
+export const heroStats = [
+  { value: '500+', label: 'Scholarships' },
+  { value: '50+', label: 'Countries' },
+  { value: '100%', label: 'Free at launch' },
+] as const
 
 export const degreeLevelOptions = [
   { value: '', label: 'All degree levels' },
@@ -65,7 +96,8 @@ export const countryOptions = [
   { value: 'turkey', label: 'Türkiye' },
   { value: 'japan', label: 'Japan' },
   { value: 'qatar', label: 'Qatar' },
-  { value: 'eu', label: 'European Union' },
+  { value: 'uk', label: 'United Kingdom' },
+  { value: 'us', label: 'United States' },
 ] as const
 
 export const fundingTypeOptions = [
@@ -76,10 +108,22 @@ export const fundingTypeOptions = [
   { value: 'stipend', label: 'Stipend' },
 ] as const
 
+export const quickFilterChips = [
+  'Fully funded',
+  'Without IELTS',
+  'Bachelor',
+  'Master',
+  'Germany',
+  'Türkiye',
+  'Deadline this month',
+] as const
+
 export const featuredScholarships: ScholarshipCard[] = [
   {
     id: 'daad',
     title: 'DAAD Scholarships in Germany',
+    description:
+      'Government-funded programs for international graduates pursuing study and research in Germany.',
     hostCountry: 'Germany',
     degreeLevel: 'Master, PhD',
     fundingType: 'Fully funded',
@@ -90,6 +134,8 @@ export const featuredScholarships: ScholarshipCard[] = [
   {
     id: 'turkiye',
     title: 'Türkiye Scholarships',
+    description:
+      'Comprehensive scholarships covering tuition, accommodation, health insurance, and monthly stipend.',
     hostCountry: 'Türkiye',
     degreeLevel: 'Bachelor, Master, PhD',
     fundingType: 'Fully funded',
@@ -100,6 +146,8 @@ export const featuredScholarships: ScholarshipCard[] = [
   {
     id: 'erasmus',
     title: 'Erasmus Mundus Joint Masters',
+    description:
+      'Study in multiple European universities with a joint degree and full mobility grant.',
     hostCountry: 'European Union',
     degreeLevel: 'Master',
     fundingType: 'Full scholarship',
@@ -110,6 +158,8 @@ export const featuredScholarships: ScholarshipCard[] = [
   {
     id: 'qatar',
     title: 'Qatar University Scholarships',
+    description:
+      'Merit-based awards for outstanding international students at Qatar University.',
     hostCountry: 'Qatar',
     degreeLevel: 'Bachelor, Master',
     fundingType: 'Tuition + stipend',
@@ -120,6 +170,8 @@ export const featuredScholarships: ScholarshipCard[] = [
   {
     id: 'mext',
     title: 'MEXT Japan Scholarships',
+    description:
+      'Japanese government scholarship for undergraduate and research students nationwide.',
     hostCountry: 'Japan',
     degreeLevel: 'Undergraduate, Research',
     fundingType: 'Fully funded',
@@ -130,6 +182,8 @@ export const featuredScholarships: ScholarshipCard[] = [
   {
     id: 'adb',
     title: 'Asian Development Bank Scholarship',
+    description:
+      'Postgraduate scholarships in development-related fields at partner universities.',
     hostCountry: 'Multiple',
     degreeLevel: 'Master',
     fundingType: 'Full tuition + living',
@@ -142,68 +196,112 @@ export const featuredScholarships: ScholarshipCard[] = [
 export const howItWorksSteps: HowItWorksStep[] = [
   {
     step: 1,
-    title: 'Discover scholarships',
+    title: 'Discover verified scholarships',
     description:
-      'Browse verified listings filtered by country, degree level, and funding type.',
+      'Search and filter opportunities by country, degree, funding, and deadline.',
   },
   {
     step: 2,
-    title: 'Check eligibility',
+    title: 'Check requirements and documents',
     description:
-      'Review requirements, deadlines, and official source links before you apply.',
+      'Review eligibility, required documents, and official source links in one place.',
   },
   {
     step: 3,
-    title: 'Save and set reminders',
+    title: 'Save and set deadline reminders',
     description:
-      'Bookmark opportunities and get deadline reminders so nothing slips through.',
+      'Bookmark scholarships and get notified before important deadlines.',
   },
   {
     step: 4,
-    title: 'Apply through official source',
+    title: 'Apply through official sources',
     description:
-      'Apply on the university or program website with confidence in verified details.',
+      'Apply directly on university or government websites with verified information.',
   },
 ]
 
 export const platformBenefits: BenefitItem[] = [
   {
-    title: 'Afghan-first scholarship discovery',
+    title: 'Afghan-first discovery',
     description:
-      'Curated for Afghan students seeking global opportunities with relevant guidance.',
+      'Built for Afghan students navigating global opportunities with relevant context.',
   },
   {
-    title: 'Verified official sources',
+    title: 'Verified source links',
     description:
-      'Every listing links to official program pages reviewed by our team.',
+      'Every listing links to official program pages—not unreliable aggregators.',
   },
   {
     title: 'Deadline reminders',
     description:
-      'Never miss an application window with email reminders for saved scholarships.',
+      'Email reminders for saved scholarships so you never miss a window.',
   },
   {
-    title: 'Simple application guidance',
+    title: 'Application guidance',
     description:
-      'Clear steps and checklists to help you prepare stronger applications.',
+      'Step-by-step checklists and tips for stronger applications.',
   },
   {
-    title: 'Saved scholarship dashboard',
+    title: 'Saved dashboard',
     description:
-      'Organize saved opportunities and track your application progress in one place.',
+      'Organize saved opportunities and track progress in one place.',
   },
   {
     title: 'Guides and templates',
     description:
-      'Practical guides for motivation letters, documents, and language requirements.',
+      'Motivation letters, documents, and language requirement resources.',
   },
 ]
 
-export const stats: StatItem[] = [
-  { value: '500+', label: 'Scholarships planned' },
-  { value: '50+', label: 'Countries' },
-  { value: '100%', label: 'Free at launch' },
-  { value: 'Verified', label: 'Source links' },
+export const popularDestinations: DestinationCard[] = [
+  {
+    id: 'germany',
+    name: 'Germany',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
+  {
+    id: 'turkiye',
+    name: 'Türkiye',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
+  {
+    id: 'japan',
+    name: 'Japan',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
+  {
+    id: 'qatar',
+    name: 'Qatar',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
+  {
+    id: 'uk',
+    name: 'United Kingdom',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
+  {
+    id: 'us',
+    name: 'United States',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
+  {
+    id: 'canada',
+    name: 'Canada',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
+  {
+    id: 'australia',
+    name: 'Australia',
+    description: 'Scholarships, universities, and funding options',
+    href: '/countries',
+  },
 ]
 
 export const trustPoints: TrustPoint[] = [
@@ -236,6 +334,7 @@ export const guides: GuideCard[] = [
     description:
       'Structure, tone, and examples for scholarship motivation letters that stand out.',
     readTime: '8 min read',
+    category: 'Application',
   },
   {
     id: 'no-ielts',
@@ -243,6 +342,7 @@ export const guides: GuideCard[] = [
     description:
       'Programs and pathways for students who need alternatives to English tests.',
     readTime: '6 min read',
+    category: 'Eligibility',
   },
   {
     id: 'documents',
@@ -250,6 +350,7 @@ export const guides: GuideCard[] = [
     description:
       'Transcripts, recommendations, CVs, and portfolios—what to prepare and when.',
     readTime: '10 min read',
+    category: 'Documents',
   },
 ]
 
@@ -258,13 +359,21 @@ export const footerColumns = {
     { label: 'Scholarships', href: '/scholarships' },
     { label: 'Countries', href: '/countries' },
     { label: 'Guides', href: '/guides' },
+    { label: 'About', href: '/about' },
   ],
   account: [
     { label: 'Sign in', href: '/auth/login' },
     { label: 'Create account', href: '/auth/signup' },
+    { label: 'Saved scholarships', href: '/scholarships' },
+  ],
+  resources: [
+    { label: 'Motivation letter guide', href: '/guides' },
+    { label: 'Scholarship documents', href: '/guides' },
+    { label: 'Without IELTS', href: '/guides' },
   ],
   legal: [
     { label: 'Privacy', href: '/privacy' },
     { label: 'Terms', href: '/terms' },
+    { label: 'Contact', href: '/about' },
   ],
 } as const

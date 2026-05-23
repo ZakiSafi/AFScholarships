@@ -1,24 +1,31 @@
 import { ArrowRight, Clock } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { guides } from '../../data/landing'
+import { guideGradients, guideImages } from '../../data/landing-images'
+import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
+import { BrandImage } from '../ui/BrandImage'
 
 export function GuidesSection() {
   return (
     <section
-      className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20"
+      className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8"
       aria-labelledby="guides-heading"
     >
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
         <div>
+          <p className="text-sm font-bold uppercase tracking-wide text-[var(--color-primary)]">
+            Student resources
+          </p>
           <h2
             id="guides-heading"
-            className="text-2xl font-bold text-[var(--color-text)] sm:text-3xl"
+            className="mt-2 text-2xl font-bold text-[var(--color-text)] sm:text-3xl"
           >
-            Application guides
+            Guides to strengthen your application
           </h2>
-          <p className="mt-2 max-w-2xl text-[var(--color-muted)]">
-            Practical resources to strengthen your scholarship applications.
+          <p className="text-section-desc mt-3 max-w-2xl">
+            Step-by-step help for motivation letters, documents, and eligibility—written
+            for real scholarship journeys.
           </p>
         </div>
         <Button variant="outline" to="/guides">
@@ -26,29 +33,55 @@ export function GuidesSection() {
         </Button>
       </div>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {guides.map((guide) => (
-          <Card key={guide.id} hover className="flex flex-col">
-            <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-muted)]">
-              <Clock className="h-3.5 w-3.5" aria-hidden />
-              {guide.readTime}
-            </p>
-            <h3 className="mt-3 text-lg font-bold text-[var(--color-text)]">
-              {guide.title}
-            </h3>
-            <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--color-muted)]">
-              {guide.description}
-            </p>
-            <Button
-              variant="ghost"
-              to="/guides"
-              className="mt-4 justify-start px-0 hover:bg-transparent"
+      <div className="mt-12 grid gap-8 md:grid-cols-3">
+        {guides.map((guide) => {
+          const image = guideImages[guide.id]
+          const gradient =
+            guideGradients[guide.id] ?? 'from-blue-800 to-slate-900'
+
+          return (
+            <article
+              key={guide.id}
+              className="card-hover-lift flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-card"
             >
-              Read guide
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Button>
-          </Card>
-        ))}
+              <Link to="/guides" className="block">
+                <BrandImage
+                  src={image?.src ?? ''}
+                  alt={image?.alt ?? guide.title}
+                  className="aspect-[16/9] w-full"
+                  fallbackGradient={gradient}
+                  overlayClassName="bg-gradient-to-t from-slate-900/50 via-transparent to-transparent"
+                />
+              </Link>
+              <div className="flex flex-1 flex-col p-6">
+                <Badge variant="category">{guide.category}</Badge>
+                <h3 className="mt-4 text-lg font-bold leading-snug text-[var(--color-text)]">
+                  <Link
+                    to="/guides"
+                    className="hover:text-[var(--color-primary)]"
+                  >
+                    {guide.title}
+                  </Link>
+                </h3>
+                <p className="mt-2 flex-1 text-sm font-normal leading-relaxed text-[var(--color-muted)]">
+                  {guide.description}
+                </p>
+                <p className="mt-4 flex items-center gap-1.5 text-sm font-medium text-[var(--color-subtle)]">
+                  <Clock className="h-4 w-4" aria-hidden />
+                  {guide.readTime}
+                </p>
+                <Button
+                  variant="ghost"
+                  to="/guides"
+                  className="mt-3 justify-start px-0 font-bold text-[var(--color-primary)] hover:bg-transparent"
+                >
+                  Read guide
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Button>
+              </div>
+            </article>
+          )
+        })}
       </div>
     </section>
   )

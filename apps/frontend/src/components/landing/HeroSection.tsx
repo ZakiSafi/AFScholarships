@@ -1,113 +1,68 @@
-import { Bell, Bookmark, CheckCircle2, MapPin, Calendar } from 'lucide-react'
-import { heroPreviewScholarship } from '../../data/landing'
+import { ArrowRight } from 'lucide-react'
+import { heroStats } from '../../data/landing'
 import { Button } from '../ui/Button'
-import { Badge } from '../ui/Badge'
-import { Card } from '../ui/Card'
+import { HeroVisual } from './HeroVisual'
 
 export function HeroSection() {
   return (
-    <section className="hero-gradient relative overflow-hidden">
-      <div className="pointer-events-none absolute -right-20 top-10 h-72 w-72 rounded-full bg-emerald-200/30 blur-3xl" />
-      <div className="pointer-events-none absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-blue-200/25 blur-3xl" />
-
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
-        <div>
-          <Badge variant="accent" className="mb-6">
-            Free at launch · Verified listings
-          </Badge>
-
-          <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-[var(--color-text)] sm:text-5xl lg:text-[3.25rem]">
-            Find verified scholarships made easier for Afghan students
-          </h1>
-
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--color-muted)]">
-            Discover global scholarships, track deadlines, save opportunities,
-            and prepare your application with confidence.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button size="lg" to="/scholarships">
-              Explore Scholarships
-            </Button>
-            <Button variant="outline" size="lg" to="/guides">
-              View Guides
-            </Button>
-          </div>
+    <section className="relative overflow-hidden bg-white" aria-labelledby="hero-heading">
+      <div className="lg:grid lg:min-h-[min(92vh,880px)] lg:grid-cols-2">
+        {/* Photo first on mobile for immediate emotional hook */}
+        <div className="order-1 lg:order-2">
+          <HeroVisual />
         </div>
 
-        <div className="lg:pl-4">
-          <Card className="relative overflow-hidden p-0 shadow-soft">
-            <div className="border-b border-[var(--color-border)] bg-gradient-to-r from-emerald-50 to-blue-50 px-6 py-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted)]">
-                Featured opportunity
-              </p>
-            </div>
+        <div className="order-2 flex flex-col justify-center px-5 py-12 sm:px-8 sm:py-14 lg:order-1 lg:px-12 lg:py-16 xl:px-16">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">
+            Afghan-first · Verified · Free
+          </p>
 
-            <div className="p-6 sm:p-7">
-              <div className="flex items-start justify-between gap-3">
-                <Badge variant="verified">
-                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-                  Verified
-                </Badge>
-                <div className="flex gap-2">
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-slate-50 px-3 py-1.5 text-xs font-medium text-[var(--color-muted)]"
-                    aria-hidden
-                  >
-                    <Bookmark className="h-3.5 w-3.5 text-[var(--color-primary)]" />
-                    Saved
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-slate-50 px-3 py-1.5 text-xs font-medium text-[var(--color-muted)]"
-                    aria-hidden
-                  >
-                    <Bell className="h-3.5 w-3.5 text-[var(--color-accent)]" />
-                    Reminder on
-                  </span>
-                </div>
+          <h1
+            id="hero-heading"
+            className="mt-5 text-[2rem] font-extrabold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl xl:text-[3.25rem]"
+          >
+            Scholarships you can trust.
+            <span className="mt-1 block text-[var(--color-primary)]">
+              Deadlines you won’t miss.
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-600">
+            Verified global opportunities, official links, and reminders—built for
+            Afghan students who deserve clarity, not confusion.
+          </p>
+
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Button
+              size="lg"
+              to="/scholarships"
+              className="bg-[var(--color-primary)] shadow-md hover:bg-[var(--color-primary-dark)]"
+            >
+              Find scholarships
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              to="/#how-it-works"
+              className="border-slate-300 text-slate-700"
+            >
+              How it works
+            </Button>
+          </div>
+
+          <dl className="mt-12 grid grid-cols-3 gap-6 border-t border-slate-200 pt-8">
+            {heroStats.map((stat) => (
+              <div key={stat.label}>
+                <dt className="text-2xl font-extrabold tabular-nums text-[var(--color-primary)] sm:text-3xl">
+                  {stat.value}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-slate-800">
+                  {stat.label}
+                </dd>
               </div>
-
-              <h2 className="mt-4 text-xl font-bold text-[var(--color-text)]">
-                {heroPreviewScholarship.title}
-              </h2>
-
-              <ul className="mt-4 space-y-2.5">
-                <li className="flex items-center gap-2 text-sm text-[var(--color-muted)]">
-                  <MapPin
-                    className="h-4 w-4 shrink-0 text-[var(--color-primary)]"
-                    aria-hidden
-                  />
-                  <span>
-                    Host country:{' '}
-                    <strong className="font-medium text-[var(--color-text)]">
-                      {heroPreviewScholarship.hostCountry}
-                    </strong>
-                  </span>
-                </li>
-                <li className="flex items-center gap-2 text-sm text-[var(--color-muted)]">
-                  <Calendar
-                    className="h-4 w-4 shrink-0 text-[var(--color-accent)]"
-                    aria-hidden
-                  />
-                  <span>
-                    Deadline:{' '}
-                    <strong className="font-medium text-[var(--color-text)]">
-                      {heroPreviewScholarship.deadline}
-                    </strong>
-                  </span>
-                </li>
-              </ul>
-
-              <div className="mt-6 flex gap-2">
-                <span className="rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">
-                  Fully funded
-                </span>
-                <span className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-800">
-                  Master
-                </span>
-              </div>
-            </div>
-          </Card>
+            ))}
+          </dl>
         </div>
       </div>
     </section>

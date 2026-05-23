@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Türkiye">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7f1d1d"/>
+      <stop offset="50%" style="stop-color:#b45309"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <circle cx="520" cy="80" r="40" fill="rgba(251,191,36,0.35)"/>
+  <path fill="rgba(255,255,255,0.15)" d="M0 240 Q160 200 320 230 T640 210 L640 360 L0 360Z"/>
+  <ellipse cx="200" cy="200" rx="120" ry="24" fill="rgba(255,255,255,0.1)"/>
+</svg>

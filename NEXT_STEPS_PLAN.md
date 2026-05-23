@@ -1,7 +1,10 @@
 # AfScholarships Production Master Plan
 
-This file is the implementation blueprint to follow before writing more code.
-It is intentionally detailed and file-by-file so work can continue from any machine.
+This file is the implementation blueprint. **Status last updated:** 2026-05-23.
+
+**Legend:** ✅ Done · ⚠️ Partial · ❌ Not started
+
+---
 
 ## 1) Product Scope Locked For Launch
 
@@ -19,405 +22,349 @@ It is intentionally detailed and file-by-file so work can continue from any mach
 
 ---
 
-## 2) Current State Summary
+## 2) Current State Summary (as of 2026-05-23)
 
-- Monorepo and Docker setup exists
-- Basic backend modules exist (`auth`, `scholarships`, `saved-items`, `applications`, `reminders`, `admin`)
-- Prisma schema exists but is not yet normalized for full production workflows
-- Frontend is currently single-file style and not feature-route architecture
+### Backend — ⚠️ Core API complete; not deploy-ready end-to-end
+
+- ✅ Monorepo + Docker (Postgres, MailHog, backend, frontend)
+- ✅ Production Prisma schema + migration (`prisma/migrations/20260523120000_production_schema/`)
+- ✅ Phases **A, B, C** implemented (auth, catalog, student flows, admin bulk, jobs, mailer)
+- ⚠️ Section **9 deploy-ready** criteria **not** fully met (tests, ops hardening, some planned modules skipped)
+- See **§3** and **§8** for item-level status
+
+### Frontend — ⚠️ Early scaffold only; not functional product
+
+- ✅ React Router + providers (`src/app/router.tsx`, `providers.tsx`)
+- ✅ Marketing **landing page** (static/mock data in `data/landing.ts`, not wired to API)
+- ✅ Partial UI primitives (`Button`, `Input`, `Card`, `Badge`, layout nav/footer)
+- ❌ No real auth, scholarship browse/detail, student dashboard, or admin console pages
+- ❌ `services/authApi.ts` is outdated vs backend (wrong token shape, missing endpoints, monolithic)
+- See **§4** and **§8 Phase D** for required work
 
 ---
 
 ## 3) Target Backend Architecture (NestJS)
 
-### 3.1 Required root module structure
+### 3.1 Required root module structure — ⚠️ Partial
 
-Create and use these folders under `apps/backend/src`:
+| Path | Status | Notes |
+|------|--------|-------|
+| `common/decorators/` | ✅ | `current-user`, `roles` |
+| `common/guards/` | ✅ | `roles.guard` (JWT guards live under `auth/guards/`) |
+| `common/filters/` | ✅ | `http-exception.filter` |
+| `common/constants/` | ✅ | `roles.ts` |
+| `common/interceptors/` | ❌ | Not created |
+| `common/pipes/` | ❌ | Not created |
+| `config/` | ✅ | `configuration.ts`, `config.module.ts` |
+| `health/` | ✅ | `GET /health` |
+| `jobs/` | ✅ | Cron jobs + `JobsService` |
+| `mailer/` | ✅ | Nodemailer provider + templates |
+| `uploads/` | ❌ | No file upload module (`ApplicationAttachment` in DB only) |
 
-- `common/`
-  - `decorators/`
-  - `guards/`
-  - `interceptors/`
-  - `filters/`
-  - `pipes/`
-  - `constants/`
-- `config/`
-- `health/`
-- `jobs/`
-- `mailer/`
-- `uploads/`
+| Module | Status | Notes |
+|--------|--------|-------|
+| `auth/` | ✅ | See §3.5 |
+| `users/` | ✅ | Admin list/get |
+| `profiles/` | ✅ | `GET/PATCH profiles/me`, preferences |
+| `scholarships/` | ✅ | See §3.6 |
+| `saved-items/` | ✅ | List, save, remove, check |
+| `applications/` | ✅ | Apply, list me, get by id + status logs |
+| `reminders/` | ✅ | CRUD + admin mark-sent |
+| `admin/` | ✅ | See §3.7 |
+| `reports/` | ⚠️ | Service only; creation still on scholarships controller |
+| `notifications/` | ❌ | `NotificationLog` in DB; used by jobs, no REST module |
+| `recommendations/` | ❌ | Not started (schema has attribution/referral only) |
+| `analytics/` | ❌ | Not started (backend module) |
 
-Existing feature modules to keep and expand:
+### 3.2 Backend file contract per module — ⚠️ Partial
 
-- `auth/`
-- `users/` (new)
-- `profiles/` (new)
-- `scholarships/`
-- `saved-items/`
-- `applications/`
-- `reminders/`
-- `notifications/` (new)
-- `admin/`
-- `reports/` (new)
-- `recommendations/` (new)
-- `analytics/` (new)
+Implemented for most modules: `*.module.ts`, `*.controller.ts`, `*.service.ts`, `dto/*.dto.ts`.
 
-### 3.2 Backend file contract per module
+**Not consistently implemented:**
 
-Each module must follow:
+- ❌ `entities/*.entity.ts` (response DTOs) — Prisma types used directly
+- ❌ `validators/*.ts` — class-validator on DTOs only
+- ❌ `policies/*.policy.ts` — `RolesGuard` only
 
-- `<feature>.module.ts`
-- `<feature>.controller.ts`
-- `<feature>.service.ts`
-- `dto/*.dto.ts`
-- `entities/*.entity.ts` (response contracts)
-- `validators/*.ts`
-- `policies/*.policy.ts` (where role/business permissions are needed)
+### 3.3 Prisma schema target — ✅ Done
 
-### 3.3 Prisma schema target (tables/models)
+All models from the plan exist in `apps/backend/prisma/schema.prisma`:
 
-Upgrade `apps/backend/prisma/schema.prisma` to include:
+Identity, profile, catalog, engagement, applications, trust/moderation, growth analytics tables — ✅
 
-Identity and access:
-- `User`
-- `AuthProviderAccount`
-- `RefreshToken`
-- `SessionToken`
-- `PasswordResetToken`
+### 3.4 Prisma migration policy — ✅ Done
 
-User profile and preference:
-- `UserProfile`
-- `UserPreference`
+- ✅ Migrations under `apps/backend/prisma/migrations/`
+- ✅ Indexes on search fields, deadlines, moderation, reminders
 
-Scholarship catalog:
-- `Scholarship`
-- `ScholarshipRequirement`
-- `ScholarshipBenefit`
-- `ApplicationStep`
-- `ScholarshipFaq`
-- `ScholarshipSource`
-- `ScholarshipTag`
-- junction table `ScholarshipToTag`
+### 3.5 Auth module completion — ⚠️ Mostly done
 
-Student engagement:
-- `SavedScholarship`
-- `UserReminder`
-- `NotificationLog`
+| Item | Status |
+|------|--------|
+| `POST /auth/signup` | ✅ |
+| `POST /auth/login` | ✅ |
+| `POST /auth/refresh` | ✅ (opaque refresh token in DB, not JWT refresh body strategy) |
+| `POST /auth/logout` | ✅ |
+| `POST /auth/forgot-password` | ✅ |
+| `POST /auth/reset-password` | ✅ |
+| `GET /auth/google` | ✅ (requires `GOOGLE_CLIENT_ID` / `SECRET`) |
+| `GET /auth/google/callback` | ✅ |
+| DTOs (signup, refresh, forgot, reset) | ✅ |
+| `jwt-access.strategy.ts` | ✅ |
+| `jwt-refresh.strategy.ts` | ⚠️ File exists; refresh flow uses DB hash in service, not this strategy |
+| `google.strategy.ts` | ✅ |
+| `jwt-access.guard.ts` | ✅ |
+| `jwt-refresh.guard.ts` | ⚠️ Present; not used on `/auth/refresh` |
+| `google-auth.guard.ts` | ✅ |
+| `roles.guard.ts` | ✅ (in `common/guards/`) |
+| Token rotation + revocation | ✅ |
 
-Application workflow:
-- `PartnerApplication`
-- `PartnerApplicationAnswer`
-- `PartnerApplicationStatusLog`
-- `ApplicationAttachment`
+### 3.6 Scholarship discovery module — ✅ Done
 
-Trust and moderation:
-- `ListingReport`
-- `VerificationReview`
-- `ModerationActionLog`
+| Item | Status |
+|------|--------|
+| Faceted filters + `GET /scholarships/facets` | ✅ |
+| Sorting + pagination metadata | ✅ |
+| Detail: requirements, benefits, FAQ, sources, verification history | ✅ |
+| `GET /scholarships/:slug/related` | ✅ |
+| Admin: draft on create, `PATCH publish`, `PATCH archive`, verify + review logs | ✅ |
+| `GET /scholarships/admin/list` | ✅ |
 
-Growth analytics support:
-- `AttributionTouchpoint`
-- `ReferralInvite`
-- `ReferralConversion`
+### 3.7 Admin module — ✅ Done
 
-### 3.4 Prisma migration policy
+| Item | Status |
+|------|--------|
+| Moderation queue (reports) | ✅ |
+| Report resolve/dismiss | ✅ |
+| Partner application review queue + status update | ✅ |
+| Audit logs read | ✅ |
+| Bulk verify | ✅ |
+| Bulk archive expired | ✅ |
+| Flag stale (via jobs service) | ✅ |
+| Manual `POST /admin/jobs/run` | ✅ |
 
-- Use deterministic migrations under `apps/backend/prisma/migrations/`
-- Add indexes for:
-  - scholarship search fields (`title`, `provider`, `hostCountry`)
-  - deadline sorting
-  - moderation queues (`status`, `createdAt`)
-  - reminder dispatch windows (`reminderAt`, `status`)
+### 3.8 Jobs and mailer — ✅ Done
 
-### 3.5 Auth module completion checklist
-
-In `apps/backend/src/auth` add:
-
-- controllers/routes:
-  - `POST /auth/signup`
-  - `POST /auth/login`
-  - `POST /auth/refresh`
-  - `POST /auth/logout`
-  - `POST /auth/forgot-password`
-  - `POST /auth/reset-password`
-  - `GET /auth/google`
-  - `GET /auth/google/callback`
-- dto:
-  - `signup.dto.ts`
-  - `refresh-token.dto.ts`
-  - `forgot-password.dto.ts`
-  - `reset-password.dto.ts`
-- strategies:
-  - `jwt-access.strategy.ts`
-  - `jwt-refresh.strategy.ts`
-  - `google.strategy.ts`
-- guards:
-  - `jwt-access.guard.ts`
-  - `jwt-refresh.guard.ts`
-  - `google-auth.guard.ts`
-  - `roles.guard.ts`
-- token rotation and revocation support in service
-
-### 3.6 Scholarship discovery module completion
-
-In `apps/backend/src/scholarships` add:
-
-- list endpoint improvements:
-  - faceted filters
-  - sorting
-  - pagination metadata
-- detail payload improvements:
-  - requirements
-  - benefits
-  - FAQ
-  - sources + verification history
-- admin lifecycle:
-  - draft/published/archived status
-  - verification workflow + review logs
-
-### 3.7 Admin module completion
-
-In `apps/backend/src/admin` add:
-
-- moderation queue endpoints
-- report resolution endpoints
-- partner application review endpoints
-- audit logs read endpoints
-- bulk operations:
-  - bulk verify
-  - bulk archive expired scholarships
-
-### 3.8 Jobs and mailer
-
-In `apps/backend/src/jobs` add:
-
-- stale scholarship checker job
-- reminder sender job
-- digest sender job
-- retry job for failed notifications
-
-In `apps/backend/src/mailer` add:
-
-- provider abstraction
-- mailhog adapter for local
-- SMTP adapter for production
-- email templates (reminder, digest, reset password)
+| Item | Status |
+|------|--------|
+| Stale scholarship job | ✅ |
+| Reminder sender job | ✅ |
+| Digest sender job | ✅ |
+| Notification retry job | ✅ |
+| Mail provider abstraction | ✅ |
+| MailHog (dev) / SMTP (prod via env) | ✅ (single Nodemailer transport) |
+| Templates: reset, reminder, digest | ✅ |
 
 ---
 
 ## 4) Target Frontend Architecture (React + TS + RTK Query + Zod)
 
-### 4.1 Replace single-file app with route architecture
+**Overall: ❌ Not complete — ~15% of Phase D.** Landing + router exist; product flows do not.
 
-Refactor frontend to use:
+### 4.0 What exists today (inventory)
 
-- `src/app/`
-  - `router.tsx`
-  - `providers.tsx`
-  - `layouts/PublicLayout.tsx`
-  - `layouts/DashboardLayout.tsx`
-  - `layouts/AdminLayout.tsx`
+| Area | Status | Location |
+|------|--------|----------|
+| Router | ⚠️ | `src/app/router.tsx` — mostly `PlaceholderPage` |
+| Providers | ⚠️ | Redux + Router only; no auth bootstrap / refresh |
+| Landing | ⚠️ | `pages/public/LandingPage.tsx` + `components/landing/*` — **mock data**, not API |
+| UI kit | ⚠️ | `Button`, `Input`, `Card`, `Badge` only |
+| RTK API | ⚠️ | `services/authApi.ts` — **stale**, monolithic, wrong auth response shape |
+| Auth slice | ⚠️ | Token in memory only; no refresh persistence |
+| Analytics | ⚠️ | `track.ts`, `attribution.ts`, `experiments.ts` — no `provider.ts` |
 
-### 4.2 Services layer
+### 4.1 Route architecture — ⚠️ Partial
 
-Under `src/services/`:
+| Item | Status |
+|------|--------|
+| `src/app/router.tsx` | ✅ |
+| `src/app/providers.tsx` | ⚠️ Missing error boundary, theme, toast |
+| `layouts/PublicLayout.tsx` | ⚠️ Navbar/Footer used ad hoc, no shared layout wrapper |
+| `layouts/DashboardLayout.tsx` | ❌ |
+| `layouts/AdminLayout.tsx` | ❌ |
 
-- `baseApi.ts` (RTK Query base setup)
-- optional shared helpers `api.ts`
-- auth token header and refresh handling
+### 4.2 Services layer — ❌ Not per plan
 
-### 4.3 Feature folder contract (required)
+| Item | Status |
+|------|--------|
+| `baseApi.ts` with shared base query | ❌ |
+| Token + **refresh** interceptor (401 → refresh → retry) | ❌ |
+| Split feature `api.ts` files | ❌ |
 
-For each feature under `src/features/<feature>/`:
+**Required API alignment** (backend changed; frontend must update):
 
-- `types.ts`
-- `validation.ts` (Zod)
-- `api.ts` (RTK Query endpoints for that feature)
-- `hooks.ts`
-- `selectors.ts` (if needed)
-- optional `slice.ts`
+- Auth: `accessToken` + `refreshToken` (not `access_token`)
+- Add: signup, refresh, logout, forgot/reset password, OAuth callback page handler
+- Scholarships: facets, related, `includeFacets`, sort params, expanded detail shape
+- Saved: `GET /saved-items/check/:id`
+- Reminders: `PATCH`, `DELETE`
+- Applications: `GET /applications/:id` with status logs
+- Profiles: `/profiles/me`, `/profiles/me/preferences`
+- Admin: applications queue, audit logs, bulk verify/archive, job run (if exposing in UI)
 
-Features to create:
+### 4.3 Feature folders — ❌ Not started (per contract)
 
-- `auth`
-- `scholarships`
-- `saved`
-- `applications`
-- `reminders`
-- `profile`
-- `admin`
-- `analytics`
+| Feature | `types.ts` | `validation.ts` | `api.ts` | `hooks.ts` | `slice.ts` |
+|---------|------------|-----------------|----------|------------|------------|
+| `auth` | ❌ | ❌ | ❌ | ❌ | ⚠️ `authSlice` only |
+| `scholarships` | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `saved` | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `applications` | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `reminders` | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `profile` | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `admin` | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `analytics` | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-### 4.4 Pages folder contract (required)
+### 4.4 Pages — ⚠️ Partial
 
-Under `src/pages/`:
+| Page | Status |
+|------|--------|
+| `public/LandingPage.tsx` | ⚠️ UI only; mock data |
+| `public/AboutPage.tsx` | ❌ Placeholder route only |
+| `public/ContactPage.tsx` | ❌ Not routed |
+| `public/PrivacyPage.tsx` | ❌ Placeholder |
+| `public/TermsPage.tsx` | ❌ Placeholder |
+| `auth/LoginPage.tsx` | ❌ Placeholder |
+| `auth/SignupPage.tsx` | ❌ Placeholder |
+| `auth/ForgotPasswordPage.tsx` | ❌ |
+| `auth/ResetPasswordPage.tsx` | ❌ |
+| `auth/AuthCallbackPage.tsx` | ❌ |
+| `scholarships/ScholarshipListPage.tsx` | ❌ Placeholder |
+| `scholarships/ScholarshipDetailPage.tsx` | ❌ |
+| `scholarships/ScholarshipComparePage.tsx` | ❌ |
+| `dashboard/*` (6 pages) | ❌ |
+| `admin/*` (6 pages) | ❌ |
 
-- `auth/`
-  - `LoginPage.tsx`
-  - `SignupPage.tsx`
-  - `ForgotPasswordPage.tsx`
-  - `ResetPasswordPage.tsx`
-  - `AuthCallbackPage.tsx`
-- `public/`
-  - `LandingPage.tsx`
-  - `AboutPage.tsx`
-  - `ContactPage.tsx`
-  - `PrivacyPage.tsx`
-  - `TermsPage.tsx`
-- `scholarships/`
-  - `ScholarshipListPage.tsx`
-  - `ScholarshipDetailPage.tsx`
-  - `ScholarshipComparePage.tsx`
-- `dashboard/`
-  - `StudentDashboardPage.tsx`
-  - `SavedPage.tsx`
-  - `ApplicationsPage.tsx`
-  - `RemindersPage.tsx`
-  - `ProfilePage.tsx`
-  - `SettingsPage.tsx`
-- `admin/`
-  - `AdminDashboardPage.tsx`
-  - `AdminScholarshipsPage.tsx`
-  - `AdminReportsPage.tsx`
-  - `AdminApplicationsPage.tsx`
-  - `AdminUsersPage.tsx`
-  - `AdminAuditLogsPage.tsx`
+### 4.5 UI system — ⚠️ Partial
 
-### 4.5 UI system and reusable components
+| Component | Status |
+|-----------|--------|
+| Button, Input, Card, Badge | ✅ |
+| Select, Textarea, Tabs, Modal | ❌ |
+| Table, Pagination | ❌ |
+| Toast, Skeleton | ❌ |
+| Navbar, Footer | ✅ (`PublicNavbar`, `Footer`) |
+| Sidebar, PageHeader, EmptyState | ❌ |
 
-Under `src/components/`:
+### 4.6 Route access policy — ❌ Not implemented
 
-- `ui/`
-  - `Button.tsx`, `Input.tsx`, `Select.tsx`, `Textarea.tsx`
-  - `Badge.tsx`, `Tabs.tsx`, `Modal.tsx`
-  - `Table.tsx`, `Pagination.tsx`
-  - `Toast.tsx`, `Skeleton.tsx`
-- `layout/`
-  - `Navbar.tsx`, `Footer.tsx`, `Sidebar.tsx`
-  - `PageHeader.tsx`, `EmptyState.tsx`
+| Policy | Status |
+|--------|--------|
+| Public routes | ⚠️ Routes exist; no layout/guard structure |
+| Protected routes (auth required) | ❌ No `ProtectedRoute` / redirect |
+| Admin role-gated routes | ❌ |
 
-### 4.6 Route access policy
+### 4.7 Frontend analytics — ⚠️ Partial
 
-- Public routes:
-  - landing, scholarship list/detail, legal pages
-- Protected routes:
-  - save, apply, reminders, profile, settings
-- Role-gated routes:
-  - all admin pages
+| Item | Status |
+|------|--------|
+| `track.ts` | ✅ |
+| `attribution.ts` | ✅ |
+| `provider.ts` (PostHog/GA4) | ❌ |
 
-### 4.7 Frontend analytics architecture
+### 4.8 Additional frontend tasks (recommended for fully functional app)
 
-Keep and expand:
+These are **required for a complete product** but were implicit in the plan; add to Phase D scope:
 
-- `src/analytics/track.ts`
-- `src/analytics/attribution.ts`
-- add provider bridge:
-  - `src/analytics/provider.ts` (PostHog/GA4 integration point)
-
----
-
-## 5) API Contract Completion (must exist before frontend finalization)
-
-Auth:
-- `/auth/signup`, `/auth/login`, `/auth/refresh`, `/auth/logout`
-- `/auth/forgot-password`, `/auth/reset-password`
-- `/auth/google`, `/auth/google/callback`
-
-Scholarships:
-- list, detail, related, report
-- admin create/update/publish/archive/verify
-
-Student:
-- saved CRUD
-- reminders CRUD
-- partner application create + history + status timeline
-
-Admin:
-- reports queue + resolve/dismiss
-- verification review
-- application review queue
-- audit logs + bulk moderation actions
+1. **Auth persistence** — store `accessToken` + `refreshToken` (httpOnly cookie or secure storage); hydrate on load
+2. **Protected route wrapper** + redirect to login with return URL
+3. **Admin route wrapper** — role `ADMIN` check
+4. **Wire landing** — replace `data/landing.ts` mocks with `GET /scholarships` + facets (or keep hero static + real featured list)
+5. **Scholarship list** — filters, sort, pagination, facet chips synced to URL query params
+6. **Scholarship detail** — full sections (requirements, benefits, FAQ, sources, steps, apply CTA external vs partner)
+7. **Student dashboard shell** — sidebar nav: Saved, Applications, Reminders, Profile, Settings
+8. **Forms with Zod** — login, signup, apply, report listing, profile edit
+9. **Error / loading states** — Skeleton, empty states, API error toasts
+10. **Admin console** — tables for scholarships (admin list), reports, applications, users, audit logs; actions wired to admin APIs
+11. **OAuth callback page** — read tokens from redirect query, store, navigate to dashboard
+12. **Environment** — document `VITE_API_URL`, callback URL in README
+13. **Compare page** — optional for v1; can defer if not launch-critical
 
 ---
 
-## 6) Testing Strategy Before Launch
+## 5) API Contract Completion — ✅ Backend ready for frontend
 
-Backend:
-- Unit tests for services and policy rules
-- E2E tests for:
-  - auth lifecycle
-  - scholarship discovery/detail
-  - save/remind/apply
-  - admin moderation flows
+| Area | Status |
+|------|--------|
+| Auth (signup, login, refresh, logout, reset, Google) | ✅ |
+| Scholarships (list, facets, detail, related, report, admin CRUD/lifecycle) | ✅ |
+| Student (saved, reminders, applications + timeline) | ✅ |
+| Admin (reports, applications, audit, bulk, jobs) | ✅ |
+| Profiles | ✅ |
 
-Frontend:
-- Component tests for key forms and route guards
-- Integration tests for major user journeys
-- Smoke E2E:
-  - sign up/login
-  - discover -> save -> reminder
-  - partner apply
-  - admin moderation
+Frontend must be updated to consume these contracts (see §4.2).
 
 ---
 
-## 7) Environment and Deployment Readiness
+## 6) Testing Strategy Before Launch — ❌ Not started
 
-### 7.1 Required environment sets
+| Area | Status |
+|------|--------|
+| Backend unit tests | ❌ |
+| Backend E2E | ❌ |
+| Frontend component tests | ❌ |
+| Frontend E2E smoke | ❌ |
 
-Backend:
-- database URL
-- JWT secrets (access/refresh)
-- Google OAuth client/secret
-- SMTP host/port/credentials
-- frontend origin and CORS policy
+---
 
-Frontend:
-- API URL
-- OAuth callback URL
-- analytics provider keys (optional at launch)
+## 7) Environment and Deployment Readiness — ⚠️ Partial
+
+### 7.1 Environment sets
+
+| Item | Status |
+|------|--------|
+| Backend DB, JWT, Google OAuth, SMTP, CORS | ⚠️ In `docker-compose.yml`; needs production `.env` doc |
+| Frontend API URL, OAuth callback | ⚠️ `VITE_API_URL` only |
 
 ### 7.2 Production ops checklist
 
-- DB backups and migration runbook
-- structured logging
-- health endpoints
-- error monitoring
-- rate limiting
-- security headers
+| Item | Status |
+|------|--------|
+| DB backups / migration runbook | ❌ |
+| Structured logging | ❌ |
+| Health endpoints | ✅ |
+| Error monitoring | ❌ |
+| Rate limiting | ❌ |
+| Security headers | ❌ |
 
 ---
 
 ## 8) Phased Build Sequence (implementation order)
 
-Phase A:
-- finalize Prisma schema + migrations
-- complete auth module with OAuth/reset/refresh
-
-Phase B:
-- complete scholarship catalog domain and trust workflows
-- complete saved/reminders/applications domain
-
-Phase C:
-- complete admin moderation and audit domain
-- add scheduler and mailer modules
-
-Phase D:
-- frontend architecture refactor (`app`, `features`, `pages`, `services`)
-- build public pages + auth pages + student dashboard pages + admin pages
-
-Phase E:
-- add analytics provider bridge and growth instrumentation polish
-- full test suite + staging dry run + launch prep
+| Phase | Scope | Status |
+|-------|--------|--------|
+| **A** | Prisma + migrations; auth (OAuth/reset/refresh) | ✅ **Done** |
+| **B** | Scholarship catalog; saved/reminders/applications; users/profiles | ✅ **Done** |
+| **C** | Admin moderation/audit; jobs; mailer | ✅ **Done** |
+| **D** | Frontend architecture + all product pages | ❌ **Not started** (landing scaffold only) |
+| **E** | Analytics provider; tests; launch prep | ❌ **Not started** |
 
 ---
 
 ## 9) Definition of Deploy-Ready
 
-- Full auth lifecycle working (email + Google OAuth + reset + refresh/logout)
-- Scholarship lifecycle complete (draft/publish/verify/archive)
-- Student core flows complete (discover/save/remind/apply/track)
-- Admin console complete (moderation/verification/application review/audit)
-- Background jobs active (stale checks/reminders/digests)
-- Lint/typecheck/tests passing
-- Production env and operations docs complete
+| Criterion | Status |
+|-----------|--------|
+| Full auth lifecycle (email + Google + reset + refresh/logout) | ⚠️ Backend ✅ · Frontend ❌ |
+| Scholarship lifecycle (draft/publish/verify/archive) | ⚠️ Backend ✅ · Admin UI ❌ |
+| Student flows (discover/save/remind/apply/track) | ⚠️ Backend ✅ · Frontend ❌ |
+| Admin console complete | ⚠️ Backend ✅ · Frontend ❌ |
+| Background jobs active | ✅ |
+| Lint/typecheck/tests passing | ⚠️ Build passes; tests ❌ |
+| Production env + ops docs | ❌ |
+
+**Verdict:** Backend is **API-complete for Phases A–C** but **not 100% finished** if you include tests, ops hardening, uploads, and optional modules from §3.1. It is **ready for frontend integration**. Frontend is **not** ready for launch.
+
+---
+
+## 10) Next work (do not start until approved)
+
+When you want implementation, say **yes** and which slice to do first, for example:
+
+1. **Phase D — Foundation:** `baseApi.ts`, auth feature (Zod + pages + refresh), protected routes
+2. **Phase D — Public:** Scholarship list + detail wired to API
+3. **Phase D — Student dashboard:** Saved, reminders, applications, profile
+4. **Phase D — Admin:** Admin layout + moderation tables
+5. **Phase E:** Tests + ops + analytics provider
+
+No code changes should be made until you explicitly approve a slice.

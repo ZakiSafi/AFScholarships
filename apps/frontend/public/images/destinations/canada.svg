@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Canada">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7f1d1d"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <path fill="rgba(255,255,255,0.15)" d="M320 80 L360 160 L440 160 L380 210 L400 290 L320 250 L240 290 L260 210 L200 160 L280 160Z"/>
+  <path fill="rgba(255,255,255,0.1)" d="M0 250 L640 240 L640 360 L0 360Z"/>
+</svg>

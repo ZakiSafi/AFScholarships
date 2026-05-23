@@ -1,13 +1,15 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
-type BadgeVariant = 'default' | 'verified' | 'accent' | 'muted'
+type BadgeVariant = 'default' | 'verified' | 'accent' | 'muted' | 'category'
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-emerald-50 text-[var(--color-primary)]',
-  verified: 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200',
-  accent: 'bg-amber-50 text-amber-800',
-  muted: 'bg-slate-100 text-[var(--color-muted)]',
+  default: 'bg-[var(--color-primary-soft)] text-[var(--color-primary)]',
+  verified:
+    'bg-[var(--color-primary-soft)] text-[var(--color-primary-dark)] ring-1 ring-[var(--color-border)]',
+  accent: 'bg-[var(--color-accent-soft)] text-amber-800',
+  muted: 'bg-[var(--color-surface-soft)] text-[var(--color-muted)]',
+  category: 'bg-[var(--color-secondary-soft)] text-sky-800',
 }
 
 type BadgeProps = {

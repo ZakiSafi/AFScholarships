@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Australia">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0369a1"/>
+      <stop offset="100%" style="stop-color:#0f766e"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <path fill="rgba(255,255,255,0.2)" d="M120 200 Q200 160 280 190 T440 170 Q520 150 560 200 L640 220 L640 360 L0 360 L0 230Z"/>
+  <circle cx="500" cy="90" r="35" fill="rgba(251,191,36,0.4)"/>
+</svg>
