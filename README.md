@@ -107,7 +107,25 @@ From repository root:
 
 ## Local Quality Checks
 
-- Backend:
-  - `cd apps/backend && npm run lint && npm run build`
-- Frontend:
-  - `cd apps/frontend && npm run lint && npm run build`
+From repository root:
+
+- **All unit tests:** `npm run test`
+- **Backend only:** `npm run test:backend` (unit + e2e health smoke)
+- **Frontend only:** `npm run test:frontend` (Vitest)
+- **Frontend E2E smoke** (requires app running on `:5173`):
+  - `cd apps/frontend && npm run test:e2e:install` (first time)
+  - `npm run start:front` in one terminal
+  - `npm run test:e2e` in another
+- **Typecheck:** `npm run typecheck`
+- **Build:**
+  - `cd apps/backend && npm run build`
+  - `cd apps/frontend && npm run build`
+
+## Environment variables
+
+Copy examples before local development:
+
+- `apps/backend/.env.example` → `apps/backend/.env`
+- `apps/frontend/.env.example` → `apps/frontend/.env`
+
+See [docs/ops/deployment.md](docs/ops/deployment.md) for production configuration and [docs/ops/runbook.md](docs/ops/runbook.md) for backups, migrations, and incidents.

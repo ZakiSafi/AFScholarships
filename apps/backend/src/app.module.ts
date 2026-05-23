@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common'
+import { APP_GUARD } from '@nestjs/core'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { AppController } from './app.controller'
 import { AdminModule } from './admin/admin.module'
 import { ApplicationsModule } from './applications/applications.module'
@@ -16,6 +18,12 @@ import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000,
+        limit: 120,
+      },
+    ]),
     AppConfigModule,
     PrismaModule,
     MailerModule,
@@ -31,5 +39,11 @@ import { UsersModule } from './users/users.module'
     AdminModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

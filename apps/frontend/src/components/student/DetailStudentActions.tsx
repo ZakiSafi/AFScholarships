@@ -1,5 +1,6 @@
 import { ExternalLink } from 'lucide-react'
 import type { ScholarshipDetail } from '../../features/scholarships/types'
+import { trackEvent } from '../../analytics/track'
 import { useAuth } from '../../features/auth/hooks'
 import { SaveScholarshipButton } from './SaveScholarshipButton'
 import { ReminderForm } from './ReminderForm'
@@ -42,6 +43,12 @@ export function DetailStudentActions({
             href={scholarship.applicationUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent('external_apply_clicked', {
+                scholarshipId: scholarship.id,
+                provider: scholarship.provider,
+              })
+            }
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-5 py-2.5 text-sm font-bold text-white"
           >
             Official application

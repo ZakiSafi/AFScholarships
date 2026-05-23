@@ -9,7 +9,12 @@
   "scripts": {
     "start:back": "docker compose up --build backend postgres mailhog",
     "start:front": "docker compose up --build frontend backend postgres mailhog",
-    "stop": "docker compose down"
+    "stop": "docker compose down",
+    "test": "npm run test --workspace=backend && npm run test --workspace=frontend",
+    "test:backend": "npm run test --workspace=backend",
+    "test:frontend": "npm run test --workspace=frontend",
+    "test:e2e": "npm run test:e2e --workspace=frontend",
+    "typecheck": "npm run typecheck --workspace=frontend"
   },
   "keywords": [],
   "author": "",

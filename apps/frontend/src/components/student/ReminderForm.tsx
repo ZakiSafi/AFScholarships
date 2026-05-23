@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { trackEvent } from '../../analytics/track'
 import { useCreateReminderMutation } from '../../features/reminders/api'
 import {
   defaultReminderAt,
@@ -31,6 +32,10 @@ export function ReminderForm({
         scholarshipId,
         reminderAt: localDatetimeToIso(reminderAt),
       }).unwrap()
+      trackEvent('reminder_created', {
+        scholarshipId,
+        reminderAt: localDatetimeToIso(reminderAt),
+      })
       setOpen(false)
       onSuccess?.()
     } catch {

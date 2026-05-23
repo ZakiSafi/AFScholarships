@@ -7,6 +7,7 @@ import {
   type PartnerApplicationFormValues,
 } from '../../features/applications/validation'
 import { useGetAccountQuery } from '../../features/profile/api'
+import { trackEvent } from '../../analytics/track'
 import { useAuth } from '../../features/auth/hooks'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -103,6 +104,9 @@ export function PartnerApplyPage() {
         scholarshipId: scholarship.id,
         body: parsed.data,
       }).unwrap()
+      trackEvent('partner_application_submitted', {
+        scholarshipId: scholarship.id,
+      })
       navigate(`/dashboard/applications/${result.id}`, { replace: true })
     } catch {
       setFormError(

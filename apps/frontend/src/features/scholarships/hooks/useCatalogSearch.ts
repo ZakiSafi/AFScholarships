@@ -6,6 +6,7 @@ import {
   parseScholarshipSearchParams,
 } from '../search-params'
 import type { ListScholarshipsParams } from '../types'
+import { trackEvent } from '../../../analytics/track'
 import { useListScholarshipsQuery } from '../api'
 
 function filtersFromParams(
@@ -61,6 +62,14 @@ export function useCatalogSearch() {
         paramsFromFilters(nextFilters, page),
       )
       setSearchParams(params, { replace: true })
+      trackEvent('scholarship_filter_applied', {
+        search: nextFilters.search || undefined,
+        country: nextFilters.country || undefined,
+        degreeLevel: nextFilters.degreeLevel || undefined,
+        fundingType: nextFilters.fundingType || undefined,
+        partnerOnly: nextFilters.partnerOnly || undefined,
+        page,
+      })
     },
     [setSearchParams],
   )

@@ -262,7 +262,7 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 |------|--------|
 | `track.ts` | ✅ |
 | `attribution.ts` | ✅ |
-| `provider.ts` (PostHog/GA4) | ❌ |
+| `provider.ts` (PostHog/GA4) | ✅ |
 
 ### 4.8 Additional frontend tasks (recommended for fully functional app)
 
@@ -298,14 +298,14 @@ Frontend must be updated to consume these contracts (see §4.2).
 
 ---
 
-## 6) Testing Strategy Before Launch — ❌ Not started
+## 6) Testing Strategy Before Launch — ⚠️ Baseline in place
 
 | Area | Status |
 |------|--------|
-| Backend unit tests | ❌ |
-| Backend E2E | ❌ |
-| Frontend component tests | ❌ |
-| Frontend E2E smoke | ❌ |
+| Backend unit tests | ✅ (`health`, `auth`, `app` controller) |
+| Backend E2E | ✅ (health endpoints smoke) |
+| Frontend unit tests | ✅ (Vitest: attribution, format helpers) |
+| Frontend E2E smoke | ✅ (Playwright: landing, catalog, login) |
 
 ---
 
@@ -315,19 +315,19 @@ Frontend must be updated to consume these contracts (see §4.2).
 
 | Item | Status |
 |------|--------|
-| Backend DB, JWT, Google OAuth, SMTP, CORS | ⚠️ In `docker-compose.yml`; needs production `.env` doc |
-| Frontend API URL, OAuth callback | ⚠️ `VITE_API_URL` only |
+| Backend DB, JWT, Google OAuth, SMTP, CORS | ✅ `docker-compose.yml` + `apps/backend/.env.example` + `docs/ops/deployment.md` |
+| Frontend API URL, analytics, OAuth callback | ✅ `apps/frontend/.env.example` |
 
 ### 7.2 Production ops checklist
 
 | Item | Status |
 |------|--------|
-| DB backups / migration runbook | ❌ |
-| Structured logging | ❌ |
+| DB backups / migration runbook | ✅ `docs/ops/runbook.md` |
+| Structured logging | ✅ HTTP JSON request logs |
 | Health endpoints | ✅ |
-| Error monitoring | ❌ |
-| Rate limiting | ❌ |
-| Security headers | ❌ |
+| Error monitoring | ❌ (wire Sentry/Datadog externally) |
+| Rate limiting | ✅ `@nestjs/throttler` (120/min) |
+| Security headers | ✅ `helmet` |
 
 ---
 
@@ -339,7 +339,7 @@ Frontend must be updated to consume these contracts (see §4.2).
 | **B** | Scholarship catalog; saved/reminders/applications; users/profiles | ✅ **Done** |
 | **C** | Admin moderation/audit; jobs; mailer | ✅ **Done** |
 | **D** | Frontend architecture + all product pages | ✅ **D-Foundation + D-Public + D-Student + D-Admin** (polish/tests pending) |
-| **E** | Analytics provider; tests; launch prep | ❌ **Not started** |
+| **E** | Analytics provider; tests; launch prep | ✅ **Done** (expand test coverage + Sentry as needed) |
 
 ---
 
@@ -352,8 +352,8 @@ Frontend must be updated to consume these contracts (see §4.2).
 | Student flows (discover/save/remind/apply/track) | ⚠️ Backend ✅ · Frontend ✅ (partner apply + profile) |
 | Admin console complete | ⚠️ Backend ✅ · Frontend ✅ (queues + bulk ops; no scholarship editor) |
 | Background jobs active | ✅ |
-| Lint/typecheck/tests passing | ⚠️ Build passes; tests ❌ |
-| Production env + ops docs | ❌ |
+| Lint/typecheck/tests passing | ✅ `npm run test` + typecheck |
+| Production env + ops docs | ✅ `docs/ops/*` + `.env.example` files |
 
 **Verdict:** Backend is **API-complete for Phases A–C** but **not 100% finished** if you include tests, ops hardening, uploads, and optional modules from §3.1. It is **ready for frontend integration**. Frontend is **not** ready for launch.
 

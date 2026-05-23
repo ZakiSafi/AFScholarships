@@ -16,6 +16,8 @@ import {
   useLogoutMutation,
   useSignupMutation,
 } from './api'
+import { identifyAnalyticsUser, resetAnalyticsUser } from '../../analytics/provider'
+import { trackEvent } from '../../analytics/track'
 import type { AuthTokensResponse } from './types'
 
 export function useAuth() {
@@ -62,6 +64,11 @@ export function useAuth() {
     async (email: string, password: string) => {
       const result = await loginMutation({ email, password }).unwrap()
       applyAuthResponse(result)
+      identifyAnalyticsUser(result.user.id, {
+        email: result.user.email,
+        role: result.user.role,
+      })
+      trackEvent('login_success', { role: result.user.role })
       return result
     },
     [applyAuthResponse, loginMutation],
@@ -85,6 +92,7 @@ export function useAuth() {
       }
     }
     dispatch(clearCredentials())
+    resetAnalyticsUser()
     navigate('/auth/login')
   }, [dispatch, logoutMutation, navigate, refreshToken])
 

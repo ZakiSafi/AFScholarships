@@ -1,6 +1,6 @@
 # Analytics Event Dictionary
 
-These events are tracked client-side and stored as an event queue in local storage for initial MVP instrumentation.
+These events are tracked client-side, forwarded to the configured analytics provider (`VITE_ANALYTICS_PROVIDER`: `console`, `ga4`, or `posthog`), and stored as an event queue in local storage for debugging (last 200 events).
 
 ## Core funnel events
 

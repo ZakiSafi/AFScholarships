@@ -1,4 +1,5 @@
 import { getAttribution } from './attribution'
+import { sendToAnalyticsProvider } from './provider'
 
 export type AnalyticsEventName =
   | 'login_success'
@@ -33,8 +34,26 @@ export function trackEvent(
     timestamp: new Date().toISOString(),
   }
 
+  if (typeof window !== 'undefined') {
+    const existing = localStorage.getItem(STORAGE_KEY)
+    const queue: AnalyticsEvent[] = existing ? JSON.parse(existing) : []
+    queue.push(event)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(queue.slice(-200)))
+  }
+
+  sendToAnalyticsProvider(event)
+}
+
+export function getAnalyticsQueue(): AnalyticsEvent[] {
+  if (typeof window === 'undefined') {
+    return []
+  }
   const existing = localStorage.getItem(STORAGE_KEY)
-  const queue: AnalyticsEvent[] = existing ? JSON.parse(existing) : []
-  queue.push(event)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(queue.slice(-200)))
+  return existing ? (JSON.parse(existing) as AnalyticsEvent[]) : []
+}
+
+export function clearAnalyticsQueue(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(STORAGE_KEY)
+  }
 }

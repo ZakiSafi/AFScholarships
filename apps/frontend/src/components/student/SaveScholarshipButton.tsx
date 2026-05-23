@@ -5,6 +5,7 @@ import {
   useSaveScholarshipMutation,
   useUnsaveScholarshipMutation,
 } from '../../features/saved/api'
+import { trackEvent } from '../../analytics/track'
 import { useAuth } from '../../features/auth/hooks'
 import { cn } from '../../lib/cn'
 
@@ -64,9 +65,13 @@ export function SaveScholarshipButton({
         e.preventDefault()
         e.stopPropagation()
         if (saved) {
-          void unsave(scholarshipId)
+          void unsave(scholarshipId).then(() => {
+            trackEvent('scholarship_unsaved', { scholarshipId })
+          })
         } else {
-          void save(scholarshipId)
+          void save(scholarshipId).then(() => {
+            trackEvent('scholarship_saved', { scholarshipId })
+          })
         }
       }}
       className={cn(

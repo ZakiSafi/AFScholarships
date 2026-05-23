@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { trackEvent } from '../../analytics/track'
 import {
   useListReportsQuery,
   useResolveReportMutation,
@@ -29,6 +30,7 @@ export function AdminReportsPage() {
     setActionError(null)
     try {
       await resolveReport({ id, status }).unwrap()
+      trackEvent('admin_report_resolved', { reportId: id, status })
     } catch {
       setActionError('Could not update report.')
     }

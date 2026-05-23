@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { trackEvent } from '../../../analytics/track'
 import { DetailAside } from '../../../components/catalog/detail/DetailAside'
 import { DetailContent } from '../../../components/catalog/detail/DetailContent'
 import { DetailOverview } from '../../../components/catalog/detail/DetailOverview'
@@ -20,6 +22,18 @@ export function ScholarshipDetailPage() {
     { slug, limit: 3 },
     { skip: !slug || !data },
   )
+
+  useEffect(() => {
+    if (!data) {
+      return
+    }
+    trackEvent('scholarship_opened', {
+      slug: data.slug,
+      hostCountry: data.hostCountry,
+      degreeLevel: data.degreeLevel,
+      fundingType: data.fundingType,
+    })
+  }, [data])
 
   if (isLoading) {
     return <DetailLoadingState />
