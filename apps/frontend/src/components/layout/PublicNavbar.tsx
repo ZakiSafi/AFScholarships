@@ -2,11 +2,14 @@ import { GraduationCap, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { navLinks } from '../../data/landing'
+import { useAuth } from '../../features/auth/hooks'
 import { Button } from '../ui/Button'
 import { cn } from '../../lib/cn'
 
 export function PublicNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { isAuthenticated, isAdmin, user, hydrated } = useAuth()
+  const showAuth = hydrated && isAuthenticated
 
   return (
     <header className="nav-solid sticky top-0 z-50 border-b border-[var(--color-border)] shadow-sm">
@@ -40,12 +43,30 @@ export function PublicNavbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Button variant="ghost" size="sm" to="/auth/login">
-            Sign in
-          </Button>
-          <Button size="sm" to="/auth/signup">
-            Get started
-          </Button>
+          {showAuth ? (
+            <>
+              <span className="max-w-[12rem] truncate text-sm text-[var(--color-muted)]">
+                {user?.name ?? user?.email}
+              </span>
+              <Button variant="ghost" size="sm" to="/dashboard">
+                Dashboard
+              </Button>
+              {isAdmin ? (
+                <Button variant="ghost" size="sm" to="/admin">
+                  Admin
+                </Button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" to="/auth/login">
+                Sign in
+              </Button>
+              <Button size="sm" to="/auth/signup">
+                Get started
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -86,12 +107,27 @@ export function PublicNavbar() {
             </Link>
           ))}
           <div className="mt-3 flex flex-col gap-2 border-t border-[var(--color-border)] pt-4">
-            <Button variant="ghost" to="/auth/login" className="w-full">
-              Sign in
-            </Button>
-            <Button to="/auth/signup" className="w-full">
-              Get started
-            </Button>
+            {showAuth ? (
+              <>
+                <Button to="/dashboard" className="w-full">
+                  Dashboard
+                </Button>
+                {isAdmin ? (
+                  <Button variant="ghost" to="/admin" className="w-full">
+                    Admin
+                  </Button>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" to="/auth/login" className="w-full">
+                  Sign in
+                </Button>
+                <Button to="/auth/signup" className="w-full">
+                  Get started
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       </div>

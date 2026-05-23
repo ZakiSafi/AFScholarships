@@ -178,18 +178,19 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 | Item | Status |
 |------|--------|
 | `src/app/router.tsx` | ✅ |
-| `src/app/providers.tsx` | ⚠️ Missing error boundary, theme, toast |
-| `layouts/PublicLayout.tsx` | ⚠️ Navbar/Footer used ad hoc, no shared layout wrapper |
-| `layouts/DashboardLayout.tsx` | ❌ |
-| `layouts/AdminLayout.tsx` | ❌ |
+| `src/app/providers.tsx` | ✅ Auth hydrate on boot |
+| `layouts/PublicLayout.tsx` | ✅ |
+| `layouts/DashboardLayout.tsx` | ✅ Shell + nav (pages placeholder) |
+| `layouts/AdminLayout.tsx` | ⚠️ Uses dashboard placeholder at `/admin` |
+| `ProtectedRoute` / `AdminRoute` / `GuestRoute` | ✅ |
 
-### 4.2 Services layer — ❌ Not per plan
+### 4.2 Services layer — ⚠️ Partial (D-Foundation done)
 
 | Item | Status |
 |------|--------|
-| `baseApi.ts` with shared base query | ❌ |
-| Token + **refresh** interceptor (401 → refresh → retry) | ❌ |
-| Split feature `api.ts` files | ❌ |
+| `baseApi.ts` with shared base query | ✅ |
+| Token + **refresh** interceptor (401 → refresh → retry) | ✅ |
+| Split feature `api.ts` files | ⚠️ `features/auth/api.ts` + `catalogApi.ts` (rest TBD) |
 
 **Required API alignment** (backend changed; frontend must update):
 
@@ -206,7 +207,7 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 
 | Feature | `types.ts` | `validation.ts` | `api.ts` | `hooks.ts` | `slice.ts` |
 |---------|------------|-----------------|----------|------------|------------|
-| `auth` | ❌ | ❌ | ❌ | ❌ | ⚠️ `authSlice` only |
+| `auth` | ✅ | ✅ | ✅ | ✅ | ✅ `authSlice` + storage |
 | `scholarships` | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `saved` | ❌ | ❌ | ❌ | ❌ | ❌ |
 | `applications` | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -224,11 +225,11 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 | `public/ContactPage.tsx` | ❌ Not routed |
 | `public/PrivacyPage.tsx` | ❌ Placeholder |
 | `public/TermsPage.tsx` | ❌ Placeholder |
-| `auth/LoginPage.tsx` | ❌ Placeholder |
-| `auth/SignupPage.tsx` | ❌ Placeholder |
-| `auth/ForgotPasswordPage.tsx` | ❌ |
-| `auth/ResetPasswordPage.tsx` | ❌ |
-| `auth/AuthCallbackPage.tsx` | ❌ |
+| `auth/LoginPage.tsx` | ✅ |
+| `auth/SignupPage.tsx` | ✅ |
+| `auth/ForgotPasswordPage.tsx` | ✅ |
+| `auth/ResetPasswordPage.tsx` | ✅ |
+| `auth/AuthCallbackPage.tsx` | ✅ |
 | `scholarships/ScholarshipListPage.tsx` | ❌ Placeholder |
 | `scholarships/ScholarshipDetailPage.tsx` | ❌ |
 | `scholarships/ScholarshipComparePage.tsx` | ❌ |
@@ -251,8 +252,8 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 | Policy | Status |
 |--------|--------|
 | Public routes | ⚠️ Routes exist; no layout/guard structure |
-| Protected routes (auth required) | ❌ No `ProtectedRoute` / redirect |
-| Admin role-gated routes | ❌ |
+| Protected routes (auth required) | ✅ |
+| Admin role-gated routes | ✅ |
 
 ### 4.7 Frontend analytics — ⚠️ Partial
 
@@ -266,9 +267,9 @@ Identity, profile, catalog, engagement, applications, trust/moderation, growth a
 
 These are **required for a complete product** but were implicit in the plan; add to Phase D scope:
 
-1. **Auth persistence** — store `accessToken` + `refreshToken` (httpOnly cookie or secure storage); hydrate on load
-2. **Protected route wrapper** + redirect to login with return URL
-3. **Admin route wrapper** — role `ADMIN` check
+1. ~~**Auth persistence**~~ — ✅ localStorage + hydrate on load
+2. ~~**Protected route wrapper**~~ — ✅
+3. ~~**Admin route wrapper**~~ — ✅
 4. **Wire landing** — replace `data/landing.ts` mocks with `GET /scholarships` + facets (or keep hero static + real featured list)
 5. **Scholarship list** — filters, sort, pagination, facet chips synced to URL query params
 6. **Scholarship detail** — full sections (requirements, benefits, FAQ, sources, steps, apply CTA external vs partner)
@@ -336,7 +337,7 @@ Frontend must be updated to consume these contracts (see §4.2).
 | **A** | Prisma + migrations; auth (OAuth/reset/refresh) | ✅ **Done** |
 | **B** | Scholarship catalog; saved/reminders/applications; users/profiles | ✅ **Done** |
 | **C** | Admin moderation/audit; jobs; mailer | ✅ **Done** |
-| **D** | Frontend architecture + all product pages | ❌ **Not started** (landing scaffold only) |
+| **D** | Frontend architecture + all product pages | ⚠️ **D-Foundation done**; D-Public/Student/Admin pending |
 | **E** | Analytics provider; tests; launch prep | ❌ **Not started** |
 
 ---
@@ -345,7 +346,7 @@ Frontend must be updated to consume these contracts (see §4.2).
 
 | Criterion | Status |
 |-----------|--------|
-| Full auth lifecycle (email + Google + reset + refresh/logout) | ⚠️ Backend ✅ · Frontend ❌ |
+| Full auth lifecycle (email + Google + reset + refresh/logout) | ⚠️ Backend ✅ · Frontend ✅ (Google needs env keys) |
 | Scholarship lifecycle (draft/publish/verify/archive) | ⚠️ Backend ✅ · Admin UI ❌ |
 | Student flows (discover/save/remind/apply/track) | ⚠️ Backend ✅ · Frontend ❌ |
 | Admin console complete | ⚠️ Backend ✅ · Frontend ❌ |
