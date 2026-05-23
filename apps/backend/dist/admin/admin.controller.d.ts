@@ -1,5 +1,7 @@
-import { ReportStatus } from '@prisma/client';
+import { ApplicationStatus, ReportStatus } from '@prisma/client';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
+import { UpdateApplicationStatusDto } from '../applications/dto/update-application-status.dto';
+import { ListAuditLogsDto } from './dto/list-audit-logs.dto';
 import { ResolveReportDto } from './dto/resolve-report.dto';
 import { AdminService } from './admin.service';
 export declare class AdminController {
@@ -11,6 +13,81 @@ export declare class AdminController {
             email: string;
             name: string | null;
         } | null;
+        scholarship: {
+            title: string;
+            id: string;
+            slug: string;
+            provider: string;
+            verificationStatus: import("@prisma/client").$Enums.VerificationStatus;
+        };
+    } & {
+        status: import("@prisma/client").$Enums.ReportStatus;
+        id: string;
+        scholarshipId: string;
+        userId: string | null;
+        reviewedById: string | null;
+        reason: string;
+        details: string | null;
+        resolvedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
+    })[]>;
+    resolveReport(id: string, user: AuthUser, payload: ResolveReportDto): Promise<{
+        status: import("@prisma/client").$Enums.ReportStatus;
+        id: string;
+        scholarshipId: string;
+        userId: string | null;
+        reviewedById: string | null;
+        reason: string;
+        details: string | null;
+        resolvedAt: Date | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    listApplications(status?: ApplicationStatus): import("@prisma/client").Prisma.PrismaPromise<({
+        user: {
+            id: string;
+            email: string;
+            name: string | null;
+        };
+        scholarship: {
+            title: string;
+            id: string;
+            slug: string;
+            provider: string;
+        };
+        statusLogs: {
+            note: string | null;
+            id: string;
+            createdAt: Date;
+            fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
+            toStatus: import("@prisma/client").$Enums.ApplicationStatus;
+            changedById: string | null;
+            applicationId: string;
+        }[];
+    } & {
+        status: import("@prisma/client").$Enums.ApplicationStatus;
+        id: string;
+        scholarshipId: string;
+        userId: string;
+        reviewedById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        fullName: string;
+        phone: string | null;
+        country: string | null;
+        educationLevel: string | null;
+        statement: string;
+        docsUrls: string[];
+        reviewedAt: Date | null;
+    })[]>;
+    updateApplicationStatus(id: string, user: AuthUser, payload: UpdateApplicationStatusDto): Promise<{
+        user: {
+            id: string;
+            email: string;
+            name: string | null;
+        };
         scholarship: {
             description: string;
             title: string;
@@ -40,29 +117,52 @@ export declare class AdminController {
             isFeatured: boolean;
             createdById: string | null;
         };
+        statusLogs: {
+            note: string | null;
+            id: string;
+            createdAt: Date;
+            fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
+            toStatus: import("@prisma/client").$Enums.ApplicationStatus;
+            changedById: string | null;
+            applicationId: string;
+        }[];
     } & {
-        status: import("@prisma/client").$Enums.ReportStatus;
+        status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
         scholarshipId: string;
-        userId: string | null;
+        userId: string;
         reviewedById: string | null;
-        reason: string;
-        details: string | null;
-        resolvedAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
-    })[]>;
-    resolveReport(id: string, user: AuthUser, payload: ResolveReportDto): Promise<{
-        status: import("@prisma/client").$Enums.ReportStatus;
-        id: string;
-        scholarshipId: string;
-        userId: string | null;
-        reviewedById: string | null;
-        reason: string;
-        details: string | null;
-        resolvedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
+        email: string;
+        fullName: string;
+        phone: string | null;
+        country: string | null;
+        educationLevel: string | null;
+        statement: string;
+        docsUrls: string[];
+        reviewedAt: Date | null;
+    }>;
+    auditLogs(query: ListAuditLogsDto): Promise<{
+        items: ({
+            actor: {
+                id: string;
+                email: string;
+                name: string | null;
+            };
+        } & {
+            entityType: string;
+            entityId: string;
+            id: string;
+            createdAt: Date;
+            actorId: string;
+            action: string;
+            metadata: import("@prisma/client/runtime/library").JsonValue | null;
+        })[];
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
     }>;
     flagStale(days?: string): Promise<{
         flaggedCount: number;

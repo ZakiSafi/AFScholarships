@@ -1,11 +1,6 @@
 import { DegreeLevel, FundingType } from '@prisma/client';
-declare class ApplicationStepDto {
-    orderIndex: number;
-    title: string;
-    description: string;
-    isRequired?: boolean;
-}
-export declare class CreateScholarshipDto {
+import { NestedScholarshipContentDto } from './scholarship-content.dto';
+export declare class CreateScholarshipDto extends NestedScholarshipContentDto {
     slug: string;
     title: string;
     summary: string;
@@ -25,6 +20,4 @@ export declare class CreateScholarshipDto {
     deadlineAt: string;
     deadlineTimezone?: string;
     isFeatured?: boolean;
-    steps?: ApplicationStepDto[];
 }
-export {};

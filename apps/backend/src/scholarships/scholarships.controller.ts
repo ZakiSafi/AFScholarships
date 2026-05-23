@@ -20,6 +20,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
+import { AdminListScholarshipsDto } from './dto/list-scholarships.dto';
 import { CreateScholarshipDto } from './dto/create-scholarship.dto';
 import { ListScholarshipsDto } from './dto/list-scholarships.dto';
 import { ReportListingDto } from './dto/report-listing.dto';
@@ -32,14 +33,38 @@ import { ScholarshipsService } from './scholarships.service';
 export class ScholarshipsController {
   constructor(private readonly scholarshipsService: ScholarshipsService) {}
 
+  @Get('facets')
+  @ApiOperation({ summary: 'Get facet counts for published scholarships' })
+  facets() {
+    return this.scholarshipsService.getFacets();
+  }
+
+  @Get('admin/list')
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List all scholarships including drafts (admin)' })
+  adminList(@Query() query: AdminListScholarshipsDto) {
+    return this.scholarshipsService.adminList(query);
+  }
+
   @Get()
-  @ApiOperation({ summary: 'List scholarships with filters and pagination' })
+  @ApiOperation({
+    summary: 'List published scholarships with filters, sorting, and facets',
+  })
   list(@Query() query: ListScholarshipsDto) {
     return this.scholarshipsService.list(query);
   }
 
+  @Get(':slug/related')
+  @ApiOperation({ summary: 'Get related published scholarships by slug' })
+  related(@Param('slug') slug: string, @Query('limit') limit?: string) {
+    const parsed = limit ? Number(limit) : 4;
+    return this.scholarshipsService.getRelated(slug, parsed);
+  }
+
   @Get(':slug')
-  @ApiOperation({ summary: 'Get scholarship details by slug' })
+  @ApiOperation({ summary: 'Get published scholarship details by slug' })
   getBySlug(@Param('slug') slug: string) {
     return this.scholarshipsService.getBySlug(slug);
   }
@@ -64,7 +89,7 @@ export class ScholarshipsController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create scholarship (admin)' })
+  @ApiOperation({ summary: 'Create scholarship draft (admin)' })
   @UseGuards(JwtAccessGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
@@ -79,6 +104,24 @@ export class ScholarshipsController {
   @ApiBearerAuth()
   update(@Param('id') id: string, @Body() payload: UpdateScholarshipDto) {
     return this.scholarshipsService.update(id, payload);
+  }
+
+  @Patch(':id/publish')
+  @ApiOperation({ summary: 'Publish scholarship (admin)' })
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  publish(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.scholarshipsService.publish(id, user.userId);
+  }
+
+  @Patch(':id/archive')
+  @ApiOperation({ summary: 'Archive scholarship (admin)' })
+  @UseGuards(JwtAccessGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
+  archive(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.scholarshipsService.archive(id, user.userId);
   }
 
   @Patch(':id/verify')

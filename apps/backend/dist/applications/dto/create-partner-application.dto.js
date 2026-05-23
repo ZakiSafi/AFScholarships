@@ -11,7 +11,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreatePartnerApplicationDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+class ApplicationAnswerDto {
+    questionKey;
+    answer;
+}
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ApplicationAnswerDto.prototype, "questionKey", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], ApplicationAnswerDto.prototype, "answer", void 0);
 class CreatePartnerApplicationDto {
     fullName;
     email;
@@ -20,6 +35,7 @@ class CreatePartnerApplicationDto {
     educationLevel;
     statement;
     docsUrls = [];
+    answers;
 }
 exports.CreatePartnerApplicationDto = CreatePartnerApplicationDto;
 __decorate([
@@ -63,4 +79,12 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], CreatePartnerApplicationDto.prototype, "docsUrls", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: [ApplicationAnswerDto] }),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => ApplicationAnswerDto),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], CreatePartnerApplicationDto.prototype, "answers", void 0);
 //# sourceMappingURL=create-partner-application.dto.js.map

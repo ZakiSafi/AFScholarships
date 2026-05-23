@@ -9,11 +9,23 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ListScholarshipsDto = void 0;
+exports.AdminListScholarshipsDto = exports.ListScholarshipsDto = exports.SortOrder = exports.ScholarshipSortField = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+var ScholarshipSortField;
+(function (ScholarshipSortField) {
+    ScholarshipSortField["DEADLINE"] = "deadline";
+    ScholarshipSortField["TITLE"] = "title";
+    ScholarshipSortField["CREATED"] = "created";
+    ScholarshipSortField["FEATURED"] = "featured";
+})(ScholarshipSortField || (exports.ScholarshipSortField = ScholarshipSortField = {}));
+var SortOrder;
+(function (SortOrder) {
+    SortOrder["ASC"] = "asc";
+    SortOrder["DESC"] = "desc";
+})(SortOrder || (exports.SortOrder = SortOrder = {}));
 class ListScholarshipsDto {
     page = 1;
     limit = 10;
@@ -22,8 +34,13 @@ class ListScholarshipsDto {
     degreeLevel;
     fundingType;
     eligibleCountry;
+    fieldOfStudy;
+    tag;
     partnerOnly;
     verificationStatus;
+    sortBy = ScholarshipSortField.DEADLINE;
+    sortOrder = SortOrder.ASC;
+    includeFacets;
 }
 exports.ListScholarshipsDto = ListScholarshipsDto;
 __decorate([
@@ -68,16 +85,27 @@ __decorate([
     __metadata("design:type", String)
 ], ListScholarshipsDto.prototype, "fundingType", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({
-        description: 'Filter by applicant citizenship country',
-    }),
+    (0, swagger_1.ApiPropertyOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], ListScholarshipsDto.prototype, "eligibleCountry", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], ListScholarshipsDto.prototype, "fieldOfStudy", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by tag slug' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], ListScholarshipsDto.prototype, "tag", void 0);
+__decorate([
     (0, swagger_1.ApiPropertyOptional)({ default: false }),
     (0, class_transformer_1.Transform)(({ value }) => value === 'true' || value === true),
+    (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], ListScholarshipsDto.prototype, "partnerOnly", void 0);
@@ -87,4 +115,36 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], ListScholarshipsDto.prototype, "verificationStatus", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: ScholarshipSortField, default: 'deadline' }),
+    (0, class_validator_1.IsEnum)(ScholarshipSortField),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], ListScholarshipsDto.prototype, "sortBy", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: SortOrder, default: 'asc' }),
+    (0, class_validator_1.IsEnum)(SortOrder),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], ListScholarshipsDto.prototype, "sortOrder", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Include facet counts in response',
+        default: false,
+    }),
+    (0, class_transformer_1.Transform)(({ value }) => value === 'true' || value === true),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], ListScholarshipsDto.prototype, "includeFacets", void 0);
+class AdminListScholarshipsDto extends ListScholarshipsDto {
+    status;
+}
+exports.AdminListScholarshipsDto = AdminListScholarshipsDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: client_1.ScholarshipStatus }),
+    (0, class_validator_1.IsEnum)(client_1.ScholarshipStatus),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], AdminListScholarshipsDto.prototype, "status", void 0);
 //# sourceMappingURL=list-scholarships.dto.js.map

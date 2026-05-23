@@ -1,9 +1,17 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReminderDto } from './dto/create-reminder.dto';
+import { UpdateReminderDto } from './dto/update-reminder.dto';
 export declare class RemindersService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     create(userId: string, scholarshipId: string, payload: CreateReminderDto): Promise<{
+        scholarship: {
+            title: string;
+            id: string;
+            slug: string;
+            deadlineAt: Date;
+        };
+    } & {
         status: import("@prisma/client").$Enums.ReminderStatus;
         id: string;
         scholarshipId: string;
@@ -15,6 +23,26 @@ export declare class RemindersService {
         sentAt: Date | null;
     }>;
     listMine(userId: string): Promise<({
+        scholarship: {
+            title: string;
+            id: string;
+            slug: string;
+            provider: string;
+            hostCountry: string;
+            deadlineAt: Date;
+        };
+    } & {
+        status: import("@prisma/client").$Enums.ReminderStatus;
+        id: string;
+        scholarshipId: string;
+        userId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        reminderAt: Date;
+        channel: import("@prisma/client").$Enums.ReminderChannel;
+        sentAt: Date | null;
+    })[]>;
+    update(reminderId: string, userId: string, payload: UpdateReminderDto): Promise<{
         scholarship: {
             description: string;
             title: string;
@@ -54,7 +82,10 @@ export declare class RemindersService {
         reminderAt: Date;
         channel: import("@prisma/client").$Enums.ReminderChannel;
         sentAt: Date | null;
-    })[]>;
+    }>;
+    remove(reminderId: string, userId: string): Promise<{
+        success: boolean;
+    }>;
     markSent(reminderId: string): Promise<{
         status: import("@prisma/client").$Enums.ReminderStatus;
         id: string;
@@ -66,4 +97,5 @@ export declare class RemindersService {
         channel: import("@prisma/client").$Enums.ReminderChannel;
         sentAt: Date | null;
     }>;
+    private findOwnedReminder;
 }

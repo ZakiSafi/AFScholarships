@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ScholarshipStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -9,15 +13,42 @@ export class SavedItemsService {
     return this.prisma.savedScholarship.findMany({
       where: { userId },
       include: {
-        scholarship: true,
+        scholarship: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            summary: true,
+            provider: true,
+            hostCountry: true,
+            degreeLevel: true,
+            fundingType: true,
+            deadlineAt: true,
+            verificationStatus: true,
+            isPartnerApplication: true,
+            status: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
   }
 
+  async isSaved(userId: string, scholarshipId: string) {
+    const record = await this.prisma.savedScholarship.findUnique({
+      where: {
+        userId_scholarshipId: { userId, scholarshipId },
+      },
+    });
+    return { saved: Boolean(record), savedAt: record?.createdAt ?? null };
+  }
+
   async save(userId: string, scholarshipId: string) {
-    const scholarship = await this.prisma.scholarship.findUnique({
-      where: { id: scholarshipId },
+    const scholarship = await this.prisma.scholarship.findFirst({
+      where: {
+        id: scholarshipId,
+        status: ScholarshipStatus.PUBLISHED,
+      },
       select: { id: true },
     });
     if (!scholarship) {
@@ -26,28 +57,33 @@ export class SavedItemsService {
 
     return this.prisma.savedScholarship.upsert({
       where: {
-        userId_scholarshipId: {
-          userId,
-          scholarshipId,
+        userId_scholarshipId: { userId, scholarshipId },
+      },
+      create: { userId, scholarshipId },
+      update: {},
+      include: {
+        scholarship: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            deadlineAt: true,
+          },
         },
       },
-      create: {
-        userId,
-        scholarshipId,
-      },
-      update: {},
     });
   }
 
   async remove(userId: string, scholarshipId: string) {
-    await this.prisma.savedScholarship.delete({
-      where: {
-        userId_scholarshipId: {
-          userId,
-          scholarshipId,
+    try {
+      await this.prisma.savedScholarship.delete({
+        where: {
+          userId_scholarshipId: { userId, scholarshipId },
         },
-      },
-    });
+      });
+    } catch {
+      throw new NotFoundException('Saved scholarship not found');
+    }
     return { success: true };
   }
 }

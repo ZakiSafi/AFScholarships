@@ -2,7 +2,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DegreeLevel, FundingType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
-  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDateString,
@@ -13,30 +12,10 @@ import {
   IsUrl,
   Max,
   Min,
-  ValidateNested,
 } from 'class-validator';
+import { NestedScholarshipContentDto } from './scholarship-content.dto';
 
-class ApplicationStepDto {
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  @Min(1)
-  orderIndex!: number;
-
-  @ApiProperty()
-  @IsString()
-  title!: string;
-
-  @ApiProperty()
-  @IsString()
-  description!: string;
-
-  @ApiPropertyOptional({ default: true })
-  @IsBoolean()
-  @IsOptional()
-  isRequired?: boolean = true;
-}
-
-export class CreateScholarshipDto {
+export class CreateScholarshipDto extends NestedScholarshipContentDto {
   @ApiProperty()
   @IsString()
   slug!: string;
@@ -130,12 +109,4 @@ export class CreateScholarshipDto {
   @IsBoolean()
   @IsOptional()
   isFeatured?: boolean = false;
-
-  @ApiPropertyOptional({ type: [ApplicationStepDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ApplicationStepDto)
-  @ArrayMinSize(1)
-  @IsOptional()
-  steps?: ApplicationStepDto[];
 }

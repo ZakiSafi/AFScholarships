@@ -1,5 +1,6 @@
 import { DegreeLevel, FundingType } from '@prisma/client';
-export declare class UpdateScholarshipDto {
+import { NestedScholarshipContentDto } from './scholarship-content.dto';
+export declare class UpdateScholarshipDto extends NestedScholarshipContentDto {
     title?: string;
     summary?: string;
     description?: string;

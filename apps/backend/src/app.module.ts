@@ -7,9 +7,11 @@ import { AppConfigModule } from './config/config.module'
 import { HealthModule } from './health/health.module'
 import { MailerModule } from './mailer/mailer.module'
 import { PrismaModule } from './prisma/prisma.module'
+import { ProfilesModule } from './profiles/profiles.module'
 import { RemindersModule } from './reminders/reminders.module'
 import { SavedItemsModule } from './saved-items/saved-items.module'
 import { ScholarshipsModule } from './scholarships/scholarships.module'
+import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ScholarshipsModule } from './scholarships/scholarships.module'
     MailerModule,
     HealthModule,
     AuthModule,
+    UsersModule,
+    ProfilesModule,
     ScholarshipsModule,
     SavedItemsModule,
     ApplicationsModule,

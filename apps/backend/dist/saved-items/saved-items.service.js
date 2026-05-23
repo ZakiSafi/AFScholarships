@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SavedItemsService = void 0;
 const common_1 = require("@nestjs/common");
+const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
 let SavedItemsService = class SavedItemsService {
     prisma;
@@ -21,14 +22,40 @@ let SavedItemsService = class SavedItemsService {
         return this.prisma.savedScholarship.findMany({
             where: { userId },
             include: {
-                scholarship: true,
+                scholarship: {
+                    select: {
+                        id: true,
+                        slug: true,
+                        title: true,
+                        summary: true,
+                        provider: true,
+                        hostCountry: true,
+                        degreeLevel: true,
+                        fundingType: true,
+                        deadlineAt: true,
+                        verificationStatus: true,
+                        isPartnerApplication: true,
+                        status: true,
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
     }
+    async isSaved(userId, scholarshipId) {
+        const record = await this.prisma.savedScholarship.findUnique({
+            where: {
+                userId_scholarshipId: { userId, scholarshipId },
+            },
+        });
+        return { saved: Boolean(record), savedAt: record?.createdAt ?? null };
+    }
     async save(userId, scholarshipId) {
-        const scholarship = await this.prisma.scholarship.findUnique({
-            where: { id: scholarshipId },
+        const scholarship = await this.prisma.scholarship.findFirst({
+            where: {
+                id: scholarshipId,
+                status: client_1.ScholarshipStatus.PUBLISHED,
+            },
             select: { id: true },
         });
         if (!scholarship) {
@@ -36,27 +63,33 @@ let SavedItemsService = class SavedItemsService {
         }
         return this.prisma.savedScholarship.upsert({
             where: {
-                userId_scholarshipId: {
-                    userId,
-                    scholarshipId,
+                userId_scholarshipId: { userId, scholarshipId },
+            },
+            create: { userId, scholarshipId },
+            update: {},
+            include: {
+                scholarship: {
+                    select: {
+                        id: true,
+                        slug: true,
+                        title: true,
+                        deadlineAt: true,
+                    },
                 },
             },
-            create: {
-                userId,
-                scholarshipId,
-            },
-            update: {},
         });
     }
     async remove(userId, scholarshipId) {
-        await this.prisma.savedScholarship.delete({
-            where: {
-                userId_scholarshipId: {
-                    userId,
-                    scholarshipId,
+        try {
+            await this.prisma.savedScholarship.delete({
+                where: {
+                    userId_scholarshipId: { userId, scholarshipId },
                 },
-            },
-        });
+            });
+        }
+        catch {
+            throw new common_1.NotFoundException('Saved scholarship not found');
+        }
         return { success: true };
     }
 };

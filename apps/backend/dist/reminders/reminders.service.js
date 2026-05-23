@@ -19,8 +19,11 @@ let RemindersService = class RemindersService {
         this.prisma = prisma;
     }
     async create(userId, scholarshipId, payload) {
-        const scholarship = await this.prisma.scholarship.findUnique({
-            where: { id: scholarshipId },
+        const scholarship = await this.prisma.scholarship.findFirst({
+            where: {
+                id: scholarshipId,
+                status: client_1.ScholarshipStatus.PUBLISHED,
+            },
             select: { id: true },
         });
         if (!scholarship) {
@@ -32,14 +35,51 @@ let RemindersService = class RemindersService {
                 scholarshipId,
                 reminderAt: new Date(payload.reminderAt),
             },
+            include: {
+                scholarship: {
+                    select: {
+                        id: true,
+                        slug: true,
+                        title: true,
+                        deadlineAt: true,
+                    },
+                },
+            },
         });
     }
     async listMine(userId) {
         return this.prisma.userReminder.findMany({
             where: { userId },
-            include: { scholarship: true },
+            include: {
+                scholarship: {
+                    select: {
+                        id: true,
+                        slug: true,
+                        title: true,
+                        provider: true,
+                        deadlineAt: true,
+                        hostCountry: true,
+                    },
+                },
+            },
             orderBy: { reminderAt: 'asc' },
         });
+    }
+    async update(reminderId, userId, payload) {
+        const reminder = await this.findOwnedReminder(reminderId, userId);
+        if (reminder.status === client_1.ReminderStatus.SENT) {
+            throw new common_1.ForbiddenException('Cannot update a sent reminder');
+        }
+        return this.prisma.userReminder.update({
+            where: { id: reminderId },
+            data: { reminderAt: new Date(payload.reminderAt) },
+            include: { scholarship: true },
+        });
+    }
+    async remove(reminderId, userId) {
+        await this.findOwnedReminder(reminderId, userId);
+        await this.prisma.userReminder.delete({ where: { id: reminderId } });
+        return { success: true };
     }
     async markSent(reminderId) {
         return this.prisma.userReminder.update({
@@ -49,6 +89,18 @@ let RemindersService = class RemindersService {
                 sentAt: new Date(),
             },
         });
+    }
+    async findOwnedReminder(reminderId, userId) {
+        const reminder = await this.prisma.userReminder.findUnique({
+            where: { id: reminderId },
+        });
+        if (!reminder) {
+            throw new common_1.NotFoundException('Reminder not found');
+        }
+        if (reminder.userId !== userId) {
+            throw new common_1.ForbiddenException('Not your reminder');
+        }
+        return reminder;
     }
 };
 exports.RemindersService = RemindersService;

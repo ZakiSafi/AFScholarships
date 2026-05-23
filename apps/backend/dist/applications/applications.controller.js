@@ -15,8 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApplicationsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const client_1 = require("@prisma/client");
 const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const applications_service_1 = require("./applications.service");
 const create_partner_application_dto_1 = require("./dto/create-partner-application.dto");
 let ApplicationsController = class ApplicationsController {
@@ -29,6 +30,9 @@ let ApplicationsController = class ApplicationsController {
     }
     listMine(user) {
         return this.applicationsService.listMine(user.userId);
+    }
+    getById(id, user) {
+        return this.applicationsService.getById(id, user.userId, user.role === client_1.UserRole.ADMIN);
     }
 };
 exports.ApplicationsController = ApplicationsController;
@@ -46,12 +50,23 @@ __decorate([
 ], ApplicationsController.prototype, "createPartnerApplication", null);
 __decorate([
     (0, common_1.Get)('me'),
-    (0, swagger_1.ApiOperation)({ summary: 'List current user partner applications' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'List current user partner applications with status timeline',
+    }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], ApplicationsController.prototype, "listMine", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get application detail with status timeline' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ApplicationsController.prototype, "getById", null);
 exports.ApplicationsController = ApplicationsController = __decorate([
     (0, swagger_1.ApiTags)('applications'),
     (0, swagger_1.ApiBearerAuth)(),

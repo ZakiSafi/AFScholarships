@@ -16,11 +16,12 @@ exports.RemindersController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
+const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
 const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
-const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
 const create_reminder_dto_1 = require("./dto/create-reminder.dto");
+const update_reminder_dto_1 = require("./dto/update-reminder.dto");
 const reminders_service_1 = require("./reminders.service");
 let RemindersController = class RemindersController {
     remindersService;
@@ -30,8 +31,14 @@ let RemindersController = class RemindersController {
     listMine(user) {
         return this.remindersService.listMine(user.userId);
     }
-    create(scholarshipId, user, payload) {
+    create(user, scholarshipId, payload) {
         return this.remindersService.create(user.userId, scholarshipId, payload);
+    }
+    update(user, id, payload) {
+        return this.remindersService.update(id, user.userId, payload);
+    }
+    remove(user, id) {
+        return this.remindersService.remove(id, user.userId);
     }
     markSent(id) {
         return this.remindersService.markSent(id);
@@ -40,7 +47,7 @@ let RemindersController = class RemindersController {
 exports.RemindersController = RemindersController;
 __decorate([
     (0, common_1.Get)('me'),
-    (0, swagger_1.ApiOperation)({ summary: 'List current user reminders' }),
+    (0, swagger_1.ApiOperation)({ summary: 'List reminders for current user' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -48,17 +55,36 @@ __decorate([
 ], RemindersController.prototype, "listMine", null);
 __decorate([
     (0, common_1.Post)('scholarship/:scholarshipId'),
-    (0, swagger_1.ApiOperation)({ summary: 'Create reminder for scholarship' }),
-    __param(0, (0, common_1.Param)('scholarshipId')),
-    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    (0, swagger_1.ApiOperation)({ summary: 'Create reminder for a scholarship' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('scholarshipId')),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, create_reminder_dto_1.CreateReminderDto]),
+    __metadata("design:paramtypes", [Object, String, create_reminder_dto_1.CreateReminderDto]),
     __metadata("design:returntype", void 0)
 ], RemindersController.prototype, "create", null);
 __decorate([
+    (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update reminder date for current user' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, update_reminder_dto_1.UpdateReminderDto]),
+    __metadata("design:returntype", void 0)
+], RemindersController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete reminder for current user' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], RemindersController.prototype, "remove", null);
+__decorate([
     (0, common_1.Post)(':id/mark-sent'),
-    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Mark reminder as sent (admin/system)' }),
     __param(0, (0, common_1.Param)('id')),

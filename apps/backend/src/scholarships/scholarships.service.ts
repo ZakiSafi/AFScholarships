@@ -11,10 +11,20 @@ import {
   VerificationStatus,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { AdminListScholarshipsDto } from './dto/list-scholarships.dto';
+import {
+  ListScholarshipsDto,
+  ScholarshipSortField,
+  SortOrder,
+} from './dto/list-scholarships.dto';
 import { CreateScholarshipDto } from './dto/create-scholarship.dto';
-import { ListScholarshipsDto } from './dto/list-scholarships.dto';
 import { ReportListingDto } from './dto/report-listing.dto';
 import { UpdateScholarshipDto } from './dto/update-scholarship.dto';
+import {
+  buildNestedCreate,
+  replaceNestedContent,
+  scholarshipDetailInclude,
+} from './scholarships-content.helper';
 
 @Injectable()
 export class ScholarshipsService implements OnModuleInit {
@@ -25,70 +35,87 @@ export class ScholarshipsService implements OnModuleInit {
   }
 
   async list(query: ListScholarshipsDto) {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 10;
-    const skip = (page - 1) * limit;
+    return this.queryScholarships(query, { status: ScholarshipStatus.PUBLISHED });
+  }
 
-    const where: Prisma.ScholarshipWhereInput = {
+  async adminList(query: AdminListScholarshipsDto) {
+    const where: Prisma.ScholarshipWhereInput = {};
+    if (query.status) {
+      where.status = query.status;
+    }
+    return this.queryScholarships(query, where);
+  }
+
+  async getFacets() {
+    const baseWhere: Prisma.ScholarshipWhereInput = {
       status: ScholarshipStatus.PUBLISHED,
     };
 
-    if (query.search) {
-      where.OR = [
-        { title: { contains: query.search, mode: 'insensitive' } },
-        { summary: { contains: query.search, mode: 'insensitive' } },
-        { provider: { contains: query.search, mode: 'insensitive' } },
-      ];
-    }
-    if (query.country) {
-      where.hostCountry = { equals: query.country, mode: 'insensitive' };
-    }
-    if (query.degreeLevel) {
-      where.degreeLevel = query.degreeLevel;
-    }
-    if (query.fundingType) {
-      where.fundingType = query.fundingType;
-    }
-    if (query.eligibleCountry) {
-      where.eligibleCountries = { has: query.eligibleCountry };
-    }
-    if (query.partnerOnly) {
-      where.isPartnerApplication = true;
-    }
-    if (query.verificationStatus) {
-      where.verificationStatus = query.verificationStatus;
+    const published = await this.prisma.scholarship.findMany({
+      where: baseWhere,
+      select: {
+        hostCountry: true,
+        degreeLevel: true,
+        fundingType: true,
+        fieldOfStudy: true,
+        isPartnerApplication: true,
+        verificationStatus: true,
+        tags: { select: { tag: { select: { slug: true, name: true } } } },
+      },
+    });
+
+    const countBy = <T extends string>(
+      items: T[],
+    ): { value: T; count: number }[] => {
+      const map = new Map<T, number>();
+      for (const item of items) {
+        map.set(item, (map.get(item) ?? 0) + 1);
+      }
+      return [...map.entries()]
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => b.count - a.count);
+    };
+
+    const tagMap = new Map<string, { slug: string; name: string; count: number }>();
+    for (const row of published) {
+      for (const { tag } of row.tags) {
+        const existing = tagMap.get(tag.slug);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          tagMap.set(tag.slug, { slug: tag.slug, name: tag.name, count: 1 });
+        }
+      }
     }
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.scholarship.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: [{ isFeatured: 'desc' }, { deadlineAt: 'asc' }],
-      }),
-      this.prisma.scholarship.count({ where }),
-    ]);
+    const fieldCounts = new Map<string, number>();
+    for (const row of published) {
+      for (const field of row.fieldOfStudy) {
+        fieldCounts.set(field, (fieldCounts.get(field) ?? 0) + 1);
+      }
+    }
 
     return {
-      items,
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
+      countries: countBy(published.map((s) => s.hostCountry)),
+      degreeLevels: countBy(published.map((s) => s.degreeLevel)),
+      fundingTypes: countBy(published.map((s) => s.fundingType)),
+      verificationStatuses: countBy(published.map((s) => s.verificationStatus)),
+      partnerApplication: {
+        inPlatform: published.filter((s) => s.isPartnerApplication).length,
+        external: published.filter((s) => !s.isPartnerApplication).length,
+      },
+      fieldsOfStudy: [...fieldCounts.entries()]
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => b.count - a.count),
+      tags: [...tagMap.values()].sort((a, b) => b.count - a.count),
+      total: published.length,
     };
   }
 
   async getBySlug(slug: string) {
     const scholarship = await this.prisma.scholarship.findFirst({
       where: { slug, status: ScholarshipStatus.PUBLISHED },
-      include: {
-        steps: { orderBy: { orderIndex: 'asc' } },
-        requirements: { orderBy: { orderIndex: 'asc' } },
-        benefits: { orderBy: { orderIndex: 'asc' } },
-        faqs: { orderBy: { orderIndex: 'asc' } },
-        sources: true,
-        tags: { include: { tag: true } },
-      },
+      include: scholarshipDetailInclude,
     });
 
     if (!scholarship) {
@@ -98,6 +125,56 @@ export class ScholarshipsService implements OnModuleInit {
     return scholarship;
   }
 
+  async getRelated(slug: string, limit = 4) {
+    const current = await this.prisma.scholarship.findFirst({
+      where: { slug, status: ScholarshipStatus.PUBLISHED },
+      select: {
+        id: true,
+        hostCountry: true,
+        degreeLevel: true,
+        fundingType: true,
+        fieldOfStudy: true,
+      },
+    });
+
+    if (!current) {
+      throw new NotFoundException('Scholarship not found');
+    }
+
+    const items = await this.prisma.scholarship.findMany({
+      where: {
+        status: ScholarshipStatus.PUBLISHED,
+        id: { not: current.id },
+        OR: [
+          { hostCountry: current.hostCountry },
+          { degreeLevel: current.degreeLevel },
+          { fundingType: current.fundingType },
+          ...(current.fieldOfStudy.length
+            ? [{ fieldOfStudy: { hasSome: current.fieldOfStudy } }]
+            : []),
+        ],
+      },
+      take: limit,
+      orderBy: [{ isFeatured: 'desc' }, { deadlineAt: 'asc' }],
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        summary: true,
+        provider: true,
+        hostCountry: true,
+        degreeLevel: true,
+        fundingType: true,
+        deadlineAt: true,
+        verificationStatus: true,
+        isFeatured: true,
+        isPartnerApplication: true,
+      },
+    });
+
+    return { items, total: items.length };
+  }
+
   async create(payload: CreateScholarshipDto, userId: string) {
     if (!payload.isPartnerApplication && !payload.applicationUrl) {
       throw new BadRequestException(
@@ -105,8 +182,11 @@ export class ScholarshipsService implements OnModuleInit {
       );
     }
 
+    const nested = buildNestedCreate(payload);
+
     return this.prisma.scholarship.create({
       data: {
+        ...nested,
         slug: payload.slug,
         title: payload.title,
         summary: payload.summary,
@@ -122,25 +202,14 @@ export class ScholarshipsService implements OnModuleInit {
         maxAge: payload.maxAge,
         applicationUrl: payload.applicationUrl,
         isPartnerApplication: payload.isPartnerApplication ?? false,
+        status: ScholarshipStatus.DRAFT,
         startsAt: payload.startsAt ? new Date(payload.startsAt) : null,
         deadlineAt: new Date(payload.deadlineAt),
         deadlineTimezone: payload.deadlineTimezone ?? 'UTC',
         isFeatured: payload.isFeatured ?? false,
         createdById: userId,
-        steps: payload.steps
-          ? {
-              create: payload.steps.map((step) => ({
-                orderIndex: step.orderIndex,
-                title: step.title,
-                description: step.description,
-                isRequired: step.isRequired ?? true,
-              })),
-            }
-          : undefined,
       },
-      include: {
-        steps: true,
-      },
+      include: scholarshipDetailInclude,
     });
   }
 
@@ -152,16 +221,49 @@ export class ScholarshipsService implements OnModuleInit {
       throw new NotFoundException('Scholarship not found');
     }
 
-    return this.prisma.scholarship.update({
-      where: { id },
-      data: {
-        ...payload,
-        startsAt: payload.startsAt ? new Date(payload.startsAt) : undefined,
-        deadlineAt: payload.deadlineAt
-          ? new Date(payload.deadlineAt)
-          : undefined,
-      },
+    const { steps, requirements, benefits, faqs, sources, tags, ...scalar } =
+      payload;
+
+    const hasNestedContent =
+      steps !== undefined ||
+      requirements !== undefined ||
+      benefits !== undefined ||
+      faqs !== undefined ||
+      sources !== undefined ||
+      tags !== undefined;
+
+    return this.prisma.$transaction(async (tx) => {
+      if (hasNestedContent) {
+        await replaceNestedContent(tx, id, {
+          steps,
+          requirements,
+          benefits,
+          faqs,
+          sources,
+          tags,
+        });
+      }
+
+      return tx.scholarship.update({
+        where: { id },
+        data: {
+          ...scalar,
+          startsAt: scalar.startsAt ? new Date(scalar.startsAt) : undefined,
+          deadlineAt: scalar.deadlineAt
+            ? new Date(scalar.deadlineAt)
+            : undefined,
+        },
+        include: scholarshipDetailInclude,
+      });
     });
+  }
+
+  async publish(id: string, actorId: string) {
+    return this.setStatus(id, ScholarshipStatus.PUBLISHED, actorId, 'publish');
+  }
+
+  async archive(id: string, actorId: string) {
+    return this.setStatus(id, ScholarshipStatus.ARCHIVED, actorId, 'archive');
   }
 
   async verify(
@@ -185,7 +287,9 @@ export class ScholarshipsService implements OnModuleInit {
             status === VerificationStatus.VERIFIED ? new Date() : null,
           lastReviewedAt: new Date(),
         },
+        include: scholarshipDetailInclude,
       });
+
       if (reviewerId) {
         await tx.verificationReview.create({
           data: {
@@ -195,7 +299,21 @@ export class ScholarshipsService implements OnModuleInit {
             newStatus: status,
           },
         });
+
+        await tx.moderationActionLog.create({
+          data: {
+            actorId: reviewerId,
+            entityType: 'scholarship',
+            entityId: id,
+            action: 'verify',
+            metadata: {
+              previousStatus: scholarship.verificationStatus,
+              newStatus: status,
+            },
+          },
+        });
       }
+
       return updated;
     });
   }
@@ -222,9 +340,158 @@ export class ScholarshipsService implements OnModuleInit {
     });
   }
 
+  private async setStatus(
+    id: string,
+    status: ScholarshipStatus,
+    actorId: string,
+    action: string,
+  ) {
+    const scholarship = await this.prisma.scholarship.findUnique({
+      where: { id },
+    });
+    if (!scholarship) {
+      throw new NotFoundException('Scholarship not found');
+    }
+
+    if (status === ScholarshipStatus.PUBLISHED && !scholarship.deadlineAt) {
+      throw new BadRequestException('Cannot publish without a deadline');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.scholarship.update({
+        where: { id },
+        data: { status },
+        include: scholarshipDetailInclude,
+      });
+
+      await tx.moderationActionLog.create({
+        data: {
+          actorId,
+          entityType: 'scholarship',
+          entityId: id,
+          action,
+          metadata: {
+            previousStatus: scholarship.status,
+            newStatus: status,
+          },
+        },
+      });
+
+      return updated;
+    });
+  }
+
+  private async queryScholarships(
+    query: ListScholarshipsDto,
+    baseWhere: Prisma.ScholarshipWhereInput,
+  ) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const skip = (page - 1) * limit;
+    const where = this.buildWhere(query, baseWhere);
+    const orderBy = this.buildOrderBy(query.sortBy, query.sortOrder);
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.scholarship.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        include: {
+          tags: { include: { tag: true } },
+        },
+      }),
+      this.prisma.scholarship.count({ where }),
+    ]);
+
+    const facets = query.includeFacets ? await this.getFacets() : undefined;
+
+    return {
+      items,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+      hasPreviousPage: page > 1,
+      ...(facets ? { facets } : {}),
+    };
+  }
+
+  private buildWhere(
+    query: ListScholarshipsDto,
+    baseWhere: Prisma.ScholarshipWhereInput,
+  ): Prisma.ScholarshipWhereInput {
+    const where: Prisma.ScholarshipWhereInput = { ...baseWhere };
+
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: 'insensitive' } },
+        { summary: { contains: query.search, mode: 'insensitive' } },
+        { provider: { contains: query.search, mode: 'insensitive' } },
+        { description: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+    if (query.country) {
+      where.hostCountry = { equals: query.country, mode: 'insensitive' };
+    }
+    if (query.degreeLevel) {
+      where.degreeLevel = query.degreeLevel;
+    }
+    if (query.fundingType) {
+      where.fundingType = query.fundingType;
+    }
+    if (query.eligibleCountry) {
+      where.eligibleCountries = { has: query.eligibleCountry };
+    }
+    if (query.fieldOfStudy) {
+      where.fieldOfStudy = { has: query.fieldOfStudy };
+    }
+    if (query.tag) {
+      where.tags = { some: { tag: { slug: query.tag } } };
+    }
+    if (query.partnerOnly) {
+      where.isPartnerApplication = true;
+    }
+    if (query.verificationStatus) {
+      where.verificationStatus = query.verificationStatus;
+    }
+
+    return where;
+  }
+
+  private buildOrderBy(
+    sortBy?: ScholarshipSortField,
+    sortOrder?: SortOrder,
+  ): Prisma.ScholarshipOrderByWithRelationInput[] {
+    const direction = sortOrder === SortOrder.DESC ? 'desc' : 'asc';
+
+    switch (sortBy) {
+      case ScholarshipSortField.TITLE:
+        return [{ title: direction }];
+      case ScholarshipSortField.CREATED:
+        return [{ createdAt: direction }];
+      case ScholarshipSortField.FEATURED:
+        return [{ isFeatured: 'desc' }, { deadlineAt: 'asc' }];
+      case ScholarshipSortField.DEADLINE:
+      default:
+        return [{ isFeatured: 'desc' }, { deadlineAt: direction }];
+    }
+  }
+
   private async seedScholarships() {
-    const count = await this.prisma.scholarship.count();
-    if (count > 0) {
+    await this.prisma.scholarship.updateMany({
+      where: {
+        slug: { in: ['turkiye-burslari', 'afscholars-partner-program'] },
+        status: ScholarshipStatus.DRAFT,
+      },
+      data: { status: ScholarshipStatus.PUBLISHED },
+    });
+
+    const publishedCount = await this.prisma.scholarship.count({
+      where: { status: ScholarshipStatus.PUBLISHED },
+    });
+    if (publishedCount > 0) {
       return;
     }
 
@@ -234,88 +501,157 @@ export class ScholarshipsService implements OnModuleInit {
     });
 
     const nowYear = new Date().getUTCFullYear();
-    await this.prisma.scholarship.createMany({
+
+    const turkiye = await this.prisma.scholarship.create({
+      data: {
+        slug: 'turkiye-burslari',
+        title: 'Turkiye Burslari Scholarship',
+        summary:
+          'Fully funded undergraduate and graduate scholarships in Turkiye.',
+        description:
+          'Turkiye Burslari provides tuition, stipend, accommodation, and health insurance for international students.',
+        provider: 'Turkiye Scholarships',
+        hostCountry: 'Turkey',
+        degreeLevel: 'MASTER',
+        fundingType: 'FULL',
+        languageRequirement: 'English or Turkish program requirements apply',
+        fieldOfStudy: ['Engineering', 'Social Sciences'],
+        eligibleCountries: ['Afghanistan', 'Pakistan', 'Uzbekistan'],
+        applicationUrl: 'https://www.turkiyeburslari.gov.tr/',
+        isPartnerApplication: false,
+        deadlineAt: new Date(Date.UTC(nowYear, 11, 20)),
+        deadlineTimezone: 'UTC',
+        verificationStatus: 'VERIFIED',
+        verifiedAt: new Date(),
+        lastReviewedAt: new Date(),
+        isFeatured: true,
+        status: ScholarshipStatus.PUBLISHED,
+        createdById: admin?.id,
+        requirements: {
+          create: [
+            {
+              orderIndex: 1,
+              label: 'Nationality',
+              description: 'Open to eligible countries including Afghanistan.',
+              isMandatory: true,
+            },
+            {
+              orderIndex: 2,
+              label: 'Academic record',
+              description: 'Minimum GPA requirements vary by program.',
+              isMandatory: true,
+            },
+          ],
+        },
+        benefits: {
+          create: [
+            {
+              orderIndex: 1,
+              title: 'Full tuition',
+              description: 'University tuition fees covered.',
+            },
+            {
+              orderIndex: 2,
+              title: 'Monthly stipend',
+              description: 'Living allowance for students.',
+            },
+          ],
+        },
+        sources: {
+          create: [
+            {
+              url: 'https://www.turkiyeburslari.gov.tr/',
+              label: 'Official program website',
+              lastCheckedAt: new Date(),
+            },
+          ],
+        },
+        tags: {
+          create: [
+            {
+              tag: {
+                connectOrCreate: {
+                  where: { slug: 'fully-funded' },
+                  create: { slug: 'fully-funded', name: 'Fully funded' },
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    const partner = await this.prisma.scholarship.create({
+      data: {
+        slug: 'afscholars-partner-program',
+        title: 'AfScholarships Partner Opportunity Program',
+        summary:
+          'Partner-managed scholarship intake with in-platform application.',
+        description:
+          'Students can submit profile and statement directly in AfScholarships for partner selection rounds.',
+        provider: 'AfScholarships Partners',
+        hostCountry: 'Global',
+        degreeLevel: 'BACHELOR',
+        fundingType: 'PARTIAL',
+        languageRequirement: 'No IELTS required at screening stage',
+        fieldOfStudy: ['Computer Science', 'Business'],
+        eligibleCountries: ['Afghanistan'],
+        isPartnerApplication: true,
+        deadlineAt: new Date(Date.UTC(nowYear, 8, 15)),
+        deadlineTimezone: 'UTC',
+        verificationStatus: 'VERIFIED',
+        verifiedAt: new Date(),
+        lastReviewedAt: new Date(),
+        isFeatured: true,
+        status: ScholarshipStatus.PUBLISHED,
+        createdById: admin?.id,
+        tags: {
+          create: [
+            {
+              tag: {
+                connectOrCreate: {
+                  where: { slug: 'apply-in-app' },
+                  create: { slug: 'apply-in-app', name: 'Apply in-app' },
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    await this.prisma.applicationStep.createMany({
       data: [
         {
-          slug: 'turkiye-burslari',
-          title: 'Turkiye Burslari Scholarship',
-          summary:
-            'Fully funded undergraduate and graduate scholarships in Turkiye.',
-          description:
-            'Turkiye Burslari provides tuition, stipend, accommodation, and health insurance for international students.',
-          provider: 'Turkiye Scholarships',
-          hostCountry: 'Turkey',
-          degreeLevel: 'MASTER',
-          fundingType: 'FULL',
-          languageRequirement: 'English or Turkish program requirements apply',
-          fieldOfStudy: ['Engineering', 'Social Sciences'],
-          eligibleCountries: ['Afghanistan', 'Pakistan', 'Uzbekistan'],
-          applicationUrl: 'https://www.turkiyeburslari.gov.tr/',
-          isPartnerApplication: false,
-          deadlineAt: new Date(Date.UTC(nowYear, 11, 20)),
-          deadlineTimezone: 'UTC',
-          verificationStatus: 'VERIFIED',
-          verifiedAt: new Date(),
-          lastReviewedAt: new Date(),
-          isFeatured: true,
-          status: ScholarshipStatus.PUBLISHED,
-          createdById: admin?.id,
+          scholarshipId: partner.id,
+          orderIndex: 1,
+          title: 'Prepare profile',
+          description: 'Complete your education history and contact details.',
         },
         {
-          slug: 'afscholars-partner-program',
-          title: 'AfScholarships Partner Opportunity Program',
-          summary:
-            'Partner-managed scholarship intake with in-platform application.',
+          scholarshipId: partner.id,
+          orderIndex: 2,
+          title: 'Upload statement',
           description:
-            'Students can submit profile and statement directly in AfScholarships for partner selection rounds.',
-          provider: 'AfScholarships Partners',
-          hostCountry: 'Global',
-          degreeLevel: 'BACHELOR',
-          fundingType: 'PARTIAL',
-          languageRequirement: 'No IELTS required at screening stage',
-          fieldOfStudy: ['Computer Science', 'Business'],
-          eligibleCountries: ['Afghanistan'],
-          isPartnerApplication: true,
-          deadlineAt: new Date(Date.UTC(nowYear, 8, 15)),
-          deadlineTimezone: 'UTC',
-          verificationStatus: 'VERIFIED',
-          verifiedAt: new Date(),
-          lastReviewedAt: new Date(),
-          isFeatured: true,
-          status: ScholarshipStatus.PUBLISHED,
-          createdById: admin?.id,
+            'Provide a short motivation statement about your study goals.',
+        },
+        {
+          scholarshipId: partner.id,
+          orderIndex: 3,
+          title: 'Submit and wait for review',
+          description: 'Our partner team reviews submissions in 2-4 weeks.',
         },
       ],
     });
 
-    const partnerScholarship = await this.prisma.scholarship.findUnique({
-      where: { slug: 'afscholars-partner-program' },
-      select: { id: true },
+    await this.prisma.scholarshipFaq.create({
+      data: {
+        scholarshipId: turkiye.id,
+        orderIndex: 1,
+        question: 'Do I need to know Turkish?',
+        answer:
+          'Many programs are offered in English; check each university requirement.',
+      },
     });
-    if (partnerScholarship) {
-      await this.prisma.applicationStep.createMany({
-        data: [
-          {
-            scholarshipId: partnerScholarship.id,
-            orderIndex: 1,
-            title: 'Prepare profile',
-            description: 'Complete your education history and contact details.',
-          },
-          {
-            scholarshipId: partnerScholarship.id,
-            orderIndex: 2,
-            title: 'Upload statement',
-            description:
-              'Provide a short motivation statement about your study goals.',
-          },
-          {
-            scholarshipId: partnerScholarship.id,
-            orderIndex: 3,
-            title: 'Submit and wait for review',
-            description: 'Our partner team reviews submissions in 2-4 weeks.',
-          },
-        ],
-      });
-    }
   }
 }

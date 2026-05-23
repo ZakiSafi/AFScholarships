@@ -14,7 +14,8 @@ const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
-class UpdateScholarshipDto {
+const scholarship_content_dto_1 = require("./scholarship-content.dto");
+class UpdateScholarshipDto extends scholarship_content_dto_1.NestedScholarshipContentDto {
     title;
     summary;
     description;

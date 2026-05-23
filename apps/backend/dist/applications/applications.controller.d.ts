@@ -5,14 +5,37 @@ export declare class ApplicationsController {
     private readonly applicationsService;
     constructor(applicationsService: ApplicationsService);
     createPartnerApplication(scholarshipId: string, user: AuthUser, payload: CreatePartnerApplicationDto): Promise<{
+        scholarship: {
+            title: string;
+            id: string;
+            slug: string;
+            provider: string;
+            isPartnerApplication: boolean;
+            deadlineAt: Date;
+        };
+        answers: {
+            id: string;
+            applicationId: string;
+            questionKey: string;
+            answer: string;
+        }[];
         statusLogs: {
+            note: string | null;
             id: string;
             createdAt: Date;
             fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
             toStatus: import("@prisma/client").$Enums.ApplicationStatus;
-            note: string | null;
             changedById: string | null;
             applicationId: string;
+        }[];
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
         }[];
     } & {
         status: import("@prisma/client").$Enums.ApplicationStatus;
@@ -33,34 +56,37 @@ export declare class ApplicationsController {
     }>;
     listMine(user: AuthUser): Promise<({
         scholarship: {
-            description: string;
             title: string;
-            status: import("@prisma/client").$Enums.ScholarshipStatus;
+            id: string;
+            slug: string;
+            provider: string;
+            isPartnerApplication: boolean;
+            deadlineAt: Date;
+        };
+        answers: {
+            id: string;
+            applicationId: string;
+            questionKey: string;
+            answer: string;
+        }[];
+        statusLogs: {
+            note: string | null;
             id: string;
             createdAt: Date;
-            updatedAt: Date;
-            slug: string;
-            summary: string;
-            provider: string;
-            hostCountry: string;
-            degreeLevel: import("@prisma/client").$Enums.DegreeLevel;
-            fundingType: import("@prisma/client").$Enums.FundingType;
-            languageRequirement: string | null;
-            fieldOfStudy: string[];
-            eligibleCountries: string[];
-            minAge: number | null;
-            maxAge: number | null;
-            applicationUrl: string | null;
-            isPartnerApplication: boolean;
-            startsAt: Date | null;
-            deadlineAt: Date;
-            deadlineTimezone: string;
-            verificationStatus: import("@prisma/client").$Enums.VerificationStatus;
-            verifiedAt: Date | null;
-            lastReviewedAt: Date | null;
-            isFeatured: boolean;
-            createdById: string | null;
-        };
+            fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
+            toStatus: import("@prisma/client").$Enums.ApplicationStatus;
+            changedById: string | null;
+            applicationId: string;
+        }[];
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
     } & {
         status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
@@ -78,4 +104,59 @@ export declare class ApplicationsController {
         docsUrls: string[];
         reviewedAt: Date | null;
     })[]>;
+    getById(id: string, user: AuthUser): Promise<{
+        user: {
+            id: string;
+            email: string;
+            name: string | null;
+        };
+        scholarship: {
+            title: string;
+            id: string;
+            slug: string;
+            provider: string;
+            isPartnerApplication: boolean;
+            deadlineAt: Date;
+        };
+        answers: {
+            id: string;
+            applicationId: string;
+            questionKey: string;
+            answer: string;
+        }[];
+        statusLogs: {
+            note: string | null;
+            id: string;
+            createdAt: Date;
+            fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
+            toStatus: import("@prisma/client").$Enums.ApplicationStatus;
+            changedById: string | null;
+            applicationId: string;
+        }[];
+        attachments: {
+            id: string;
+            applicationId: string;
+            fileName: string;
+            fileUrl: string;
+            mimeType: string | null;
+            sizeBytes: number | null;
+            uploadedAt: Date;
+        }[];
+    } & {
+        status: import("@prisma/client").$Enums.ApplicationStatus;
+        id: string;
+        scholarshipId: string;
+        userId: string;
+        reviewedById: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        fullName: string;
+        phone: string | null;
+        country: string | null;
+        educationLevel: string | null;
+        statement: string;
+        docsUrls: string[];
+        reviewedAt: Date | null;
+    }>;
 }

@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { UserRole } from '@prisma/client';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
 import { ApplicationsService } from './applications.service';
 import { CreatePartnerApplicationDto } from './dto/create-partner-application.dto';
@@ -30,8 +31,20 @@ export class ApplicationsController {
   }
 
   @Get('me')
-  @ApiOperation({ summary: 'List current user partner applications' })
+  @ApiOperation({
+    summary: 'List current user partner applications with status timeline',
+  })
   listMine(@CurrentUser() user: AuthUser) {
     return this.applicationsService.listMine(user.userId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get application detail with status timeline' })
+  getById(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.applicationsService.getById(
+      id,
+      user.userId,
+      user.role === UserRole.ADMIN,
+    );
   }
 }

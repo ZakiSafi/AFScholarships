@@ -11,21 +11,46 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApplicationsService = void 0;
 const common_1 = require("@nestjs/common");
+const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
+const applicationInclude = {
+    scholarship: {
+        select: {
+            id: true,
+            slug: true,
+            title: true,
+            provider: true,
+            deadlineAt: true,
+            isPartnerApplication: true,
+        },
+    },
+    statusLogs: { orderBy: { createdAt: 'asc' } },
+    answers: true,
+    attachments: true,
+};
 let ApplicationsService = class ApplicationsService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
     async applyToPartnerScholarship(scholarshipId, userId, payload) {
-        const scholarship = await this.prisma.scholarship.findUnique({
-            where: { id: scholarshipId },
+        const scholarship = await this.prisma.scholarship.findFirst({
+            where: {
+                id: scholarshipId,
+                status: client_1.ScholarshipStatus.PUBLISHED,
+            },
         });
         if (!scholarship) {
             throw new common_1.NotFoundException('Scholarship not found');
         }
         if (!scholarship.isPartnerApplication) {
             throw new common_1.BadRequestException('This scholarship only supports external application');
+        }
+        const existing = await this.prisma.partnerApplication.findFirst({
+            where: { scholarshipId, userId },
+        });
+        if (existing) {
+            throw new common_1.BadRequestException('You already submitted an application for this scholarship');
         }
         return this.prisma.partnerApplication.create({
             data: {
@@ -38,26 +63,48 @@ let ApplicationsService = class ApplicationsService {
                 educationLevel: payload.educationLevel,
                 statement: payload.statement,
                 docsUrls: payload.docsUrls ?? [],
+                answers: payload.answers
+                    ? {
+                        create: payload.answers.map((item) => ({
+                            questionKey: item.questionKey,
+                            answer: item.answer,
+                        })),
+                    }
+                    : undefined,
                 statusLogs: {
                     create: {
-                        toStatus: 'SUBMITTED',
+                        toStatus: client_1.ApplicationStatus.SUBMITTED,
                         note: 'Application submitted',
                     },
                 },
             },
-            include: {
-                statusLogs: { orderBy: { createdAt: 'asc' } },
-            },
+            include: applicationInclude,
         });
     }
     async listMine(userId) {
         return this.prisma.partnerApplication.findMany({
             where: { userId },
-            include: {
-                scholarship: true,
-            },
+            include: applicationInclude,
             orderBy: { createdAt: 'desc' },
         });
+    }
+    async getById(applicationId, userId, isAdmin) {
+        const application = await this.prisma.partnerApplication.findUnique({
+            where: { id: applicationId },
+            include: {
+                ...applicationInclude,
+                user: {
+                    select: { id: true, email: true, name: true },
+                },
+            },
+        });
+        if (!application) {
+            throw new common_1.NotFoundException('Application not found');
+        }
+        if (!isAdmin && application.userId !== userId) {
+            throw new common_1.ForbiddenException('Not your application');
+        }
+        return application;
     }
 };
 exports.ApplicationsService = ApplicationsService;

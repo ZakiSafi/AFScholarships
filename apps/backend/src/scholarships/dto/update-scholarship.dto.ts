@@ -13,8 +13,9 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { NestedScholarshipContentDto } from './scholarship-content.dto';
 
-export class UpdateScholarshipDto {
+export class UpdateScholarshipDto extends NestedScholarshipContentDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()

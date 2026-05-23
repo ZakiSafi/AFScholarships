@@ -20,8 +20,9 @@ const current_user_decorator_1 = require("../common/decorators/current-user.deco
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
 const roles_guard_1 = require("../common/guards/roles.guard");
-const create_scholarship_dto_1 = require("./dto/create-scholarship.dto");
 const list_scholarships_dto_1 = require("./dto/list-scholarships.dto");
+const create_scholarship_dto_1 = require("./dto/create-scholarship.dto");
+const list_scholarships_dto_2 = require("./dto/list-scholarships.dto");
 const report_listing_dto_1 = require("./dto/report-listing.dto");
 const update_scholarship_dto_1 = require("./dto/update-scholarship.dto");
 const verify_scholarship_dto_1 = require("./dto/verify-scholarship.dto");
@@ -31,8 +32,18 @@ let ScholarshipsController = class ScholarshipsController {
     constructor(scholarshipsService) {
         this.scholarshipsService = scholarshipsService;
     }
+    facets() {
+        return this.scholarshipsService.getFacets();
+    }
+    adminList(query) {
+        return this.scholarshipsService.adminList(query);
+    }
     list(query) {
         return this.scholarshipsService.list(query);
+    }
+    related(slug, limit) {
+        const parsed = limit ? Number(limit) : 4;
+        return this.scholarshipsService.getRelated(slug, parsed);
     }
     getBySlug(slug) {
         return this.scholarshipsService.getBySlug(slug);
@@ -46,22 +57,57 @@ let ScholarshipsController = class ScholarshipsController {
     update(id, payload) {
         return this.scholarshipsService.update(id, payload);
     }
+    publish(id, user) {
+        return this.scholarshipsService.publish(id, user.userId);
+    }
+    archive(id, user) {
+        return this.scholarshipsService.archive(id, user.userId);
+    }
     verify(id, payload, user) {
         return this.scholarshipsService.verify(id, payload.status, user.userId);
     }
 };
 exports.ScholarshipsController = ScholarshipsController;
 __decorate([
-    (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'List scholarships with filters and pagination' }),
+    (0, common_1.Get)('facets'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get facet counts for published scholarships' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ScholarshipsController.prototype, "facets", null);
+__decorate([
+    (0, common_1.Get)('admin/list'),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'List all scholarships including drafts (admin)' }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [list_scholarships_dto_1.ListScholarshipsDto]),
+    __metadata("design:paramtypes", [list_scholarships_dto_1.AdminListScholarshipsDto]),
+    __metadata("design:returntype", void 0)
+], ScholarshipsController.prototype, "adminList", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({
+        summary: 'List published scholarships with filters, sorting, and facets',
+    }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [list_scholarships_dto_2.ListScholarshipsDto]),
     __metadata("design:returntype", void 0)
 ], ScholarshipsController.prototype, "list", null);
 __decorate([
+    (0, common_1.Get)(':slug/related'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get related published scholarships by slug' }),
+    __param(0, (0, common_1.Param)('slug')),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], ScholarshipsController.prototype, "related", null);
+__decorate([
     (0, common_1.Get)(':slug'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get scholarship details by slug' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get published scholarship details by slug' }),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -84,7 +130,7 @@ __decorate([
 ], ScholarshipsController.prototype, "report", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Create scholarship (admin)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Create scholarship draft (admin)' }),
     (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
@@ -106,6 +152,30 @@ __decorate([
     __metadata("design:paramtypes", [String, update_scholarship_dto_1.UpdateScholarshipDto]),
     __metadata("design:returntype", void 0)
 ], ScholarshipsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Patch)(':id/publish'),
+    (0, swagger_1.ApiOperation)({ summary: 'Publish scholarship (admin)' }),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, swagger_1.ApiBearerAuth)(),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ScholarshipsController.prototype, "publish", null);
+__decorate([
+    (0, common_1.Patch)(':id/archive'),
+    (0, swagger_1.ApiOperation)({ summary: 'Archive scholarship (admin)' }),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, swagger_1.ApiBearerAuth)(),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ScholarshipsController.prototype, "archive", null);
 __decorate([
     (0, common_1.Patch)(':id/verify'),
     (0, swagger_1.ApiOperation)({ summary: 'Verify or flag scholarship (admin)' }),

@@ -12,8 +12,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
 import { SavedItemsService } from './saved-items.service';
 
@@ -28,6 +28,15 @@ export class SavedItemsController {
   @ApiOperation({ summary: 'List current user saved scholarships' })
   list(@CurrentUser() user: AuthUser) {
     return this.savedItemsService.listForUser(user.userId);
+  }
+
+  @Get('check/:scholarshipId')
+  @ApiOperation({ summary: 'Check if a scholarship is saved by current user' })
+  check(
+    @CurrentUser() user: AuthUser,
+    @Param('scholarshipId') scholarshipId: string,
+  ) {
+    return this.savedItemsService.isSaved(user.userId, scholarshipId);
   }
 
   @Post(':scholarshipId')

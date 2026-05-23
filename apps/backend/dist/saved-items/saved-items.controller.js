@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SavedItemsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
 const saved_items_service_1 = require("./saved-items.service");
 let SavedItemsController = class SavedItemsController {
     savedItemsService;
@@ -25,6 +25,9 @@ let SavedItemsController = class SavedItemsController {
     }
     list(user) {
         return this.savedItemsService.listForUser(user.userId);
+    }
+    check(user, scholarshipId) {
+        return this.savedItemsService.isSaved(user.userId, scholarshipId);
     }
     save(user, scholarshipId) {
         return this.savedItemsService.save(user.userId, scholarshipId);
@@ -42,6 +45,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], SavedItemsController.prototype, "list", null);
+__decorate([
+    (0, common_1.Get)('check/:scholarshipId'),
+    (0, swagger_1.ApiOperation)({ summary: 'Check if a scholarship is saved by current user' }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('scholarshipId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], SavedItemsController.prototype, "check", null);
 __decorate([
     (0, common_1.Post)(':scholarshipId'),
     (0, swagger_1.ApiOperation)({ summary: 'Save scholarship for current user' }),

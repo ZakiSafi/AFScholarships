@@ -8,12 +8,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ReportStatus, UserRole } from '@prisma/client';
+import { ApplicationStatus, ReportStatus, UserRole } from '@prisma/client';
+import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
-import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
+import { UpdateApplicationStatusDto } from '../applications/dto/update-application-status.dto';
+import { ListAuditLogsDto } from './dto/list-audit-logs.dto';
 import { ResolveReportDto } from './dto/resolve-report.dto';
 import { AdminService } from './admin.service';
 
@@ -39,6 +41,32 @@ export class AdminController {
     @Body() payload: ResolveReportDto,
   ) {
     return this.adminService.resolveReport(id, payload.status, user.userId);
+  }
+
+  @Get('applications')
+  @ApiOperation({ summary: 'List partner applications for review' })
+  listApplications(@Query('status') status?: ApplicationStatus) {
+    return this.adminService.listApplications(status);
+  }
+
+  @Patch('applications/:id/status')
+  @ApiOperation({ summary: 'Update partner application status' })
+  updateApplicationStatus(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthUser,
+    @Body() payload: UpdateApplicationStatusDto,
+  ) {
+    return this.adminService.updateApplicationStatus(
+      id,
+      payload,
+      user.userId,
+    );
+  }
+
+  @Get('audit-logs')
+  @ApiOperation({ summary: 'Read moderation audit logs' })
+  auditLogs(@Query() query: ListAuditLogsDto) {
+    return this.adminService.listAuditLogs(query);
   }
 
   @Patch('scholarships/flag-stale')

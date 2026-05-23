@@ -1,11 +1,23 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
   IsOptional,
   IsString,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
+
+class ApplicationAnswerDto {
+  @ApiProperty()
+  @IsString()
+  questionKey!: string;
+
+  @ApiProperty()
+  @IsString()
+  answer!: string;
+}
 
 export class CreatePartnerApplicationDto {
   @ApiProperty()
@@ -41,4 +53,11 @@ export class CreatePartnerApplicationDto {
   @IsString({ each: true })
   @IsOptional()
   docsUrls?: string[] = [];
+
+  @ApiPropertyOptional({ type: [ApplicationAnswerDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ApplicationAnswerDto)
+  @IsOptional()
+  answers?: ApplicationAnswerDto[];
 }

@@ -1,3 +1,7 @@
+declare class ApplicationAnswerDto {
+    questionKey: string;
+    answer: string;
+}
 export declare class CreatePartnerApplicationDto {
     fullName: string;
     email: string;
@@ -6,4 +10,6 @@ export declare class CreatePartnerApplicationDto {
     educationLevel?: string;
     statement: string;
     docsUrls?: string[];
+    answers?: ApplicationAnswerDto[];
 }
+export {};
