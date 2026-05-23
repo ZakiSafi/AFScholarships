@@ -16,10 +16,10 @@ exports.RemindersController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
-const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
-const roles_guard_1 = require("../auth/guards/roles.guard");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
+const roles_guard_1 = require("../common/guards/roles.guard");
 const create_reminder_dto_1 = require("./dto/create-reminder.dto");
 const reminders_service_1 = require("./reminders.service");
 let RemindersController = class RemindersController {
@@ -58,7 +58,7 @@ __decorate([
 ], RemindersController.prototype, "create", null);
 __decorate([
     (0, common_1.Post)(':id/mark-sent'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Mark reminder as sent (admin/system)' }),
     __param(0, (0, common_1.Param)('id')),
@@ -69,7 +69,7 @@ __decorate([
 exports.RemindersController = RemindersController = __decorate([
     (0, swagger_1.ApiTags)('reminders'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard),
     (0, common_1.Controller)('reminders'),
     __metadata("design:paramtypes", [reminders_service_1.RemindersService])
 ], RemindersController);

@@ -15,10 +15,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
 import { CreateScholarshipDto } from './dto/create-scholarship.dto';
 import { ListScholarshipsDto } from './dto/list-scholarships.dto';
@@ -49,7 +49,7 @@ export class ScholarshipsController {
     summary: 'Report potentially outdated or incorrect listing data',
   })
   @ApiResponse({ status: 201, description: 'Report submitted' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessGuard)
   @ApiBearerAuth()
   report(
     @Param('id') scholarshipId: string,
@@ -65,7 +65,7 @@ export class ScholarshipsController {
 
   @Post()
   @ApiOperation({ summary: 'Create scholarship (admin)' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAccessGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
   create(@Body() payload: CreateScholarshipDto, @CurrentUser() user: AuthUser) {
@@ -74,7 +74,7 @@ export class ScholarshipsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update scholarship (admin)' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAccessGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
   update(@Param('id') id: string, @Body() payload: UpdateScholarshipDto) {
@@ -83,10 +83,14 @@ export class ScholarshipsController {
 
   @Patch(':id/verify')
   @ApiOperation({ summary: 'Verify or flag scholarship (admin)' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAccessGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
-  verify(@Param('id') id: string, @Body() payload: VerifyScholarshipDto) {
-    return this.scholarshipsService.verify(id, payload.status);
+  verify(
+    @Param('id') id: string,
+    @Body() payload: VerifyScholarshipDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.scholarshipsService.verify(id, payload.status, user.userId);
   }
 }

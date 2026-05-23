@@ -16,10 +16,10 @@ exports.AdminController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
-const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
-const roles_guard_1 = require("../auth/guards/roles.guard");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
+const roles_guard_1 = require("../common/guards/roles.guard");
 const resolve_report_dto_1 = require("./dto/resolve-report.dto");
 const admin_service_1 = require("./admin.service");
 let AdminController = class AdminController {
@@ -70,7 +70,7 @@ __decorate([
 exports.AdminController = AdminController = __decorate([
     (0, swagger_1.ApiTags)('admin'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, common_1.Controller)('admin'),
     __metadata("design:paramtypes", [admin_service_1.AdminService])

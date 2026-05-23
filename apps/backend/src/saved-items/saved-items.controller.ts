@@ -12,14 +12,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
 import { SavedItemsService } from './saved-items.service';
 
 @ApiTags('saved-items')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAccessGuard)
 @Controller('saved-items')
 export class SavedItemsController {
   constructor(private readonly savedItemsService: SavedItemsService) {}

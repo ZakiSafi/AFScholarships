@@ -14,6 +14,7 @@ export declare class AdminController {
         scholarship: {
             description: string;
             title: string;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
             createdAt: Date;
             updatedAt: Date;

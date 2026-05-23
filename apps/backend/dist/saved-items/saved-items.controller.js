@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SavedItemsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
 const saved_items_service_1 = require("./saved-items.service");
 let SavedItemsController = class SavedItemsController {
     savedItemsService;
@@ -64,7 +64,7 @@ __decorate([
 exports.SavedItemsController = SavedItemsController = __decorate([
     (0, swagger_1.ApiTags)('saved-items'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard),
     (0, common_1.Controller)('saved-items'),
     __metadata("design:paramtypes", [saved_items_service_1.SavedItemsService])
 ], SavedItemsController);

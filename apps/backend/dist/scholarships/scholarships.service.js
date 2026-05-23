@@ -25,7 +25,9 @@ let ScholarshipsService = class ScholarshipsService {
         const page = query.page ?? 1;
         const limit = query.limit ?? 10;
         const skip = (page - 1) * limit;
-        const where = {};
+        const where = {
+            status: client_1.ScholarshipStatus.PUBLISHED,
+        };
         if (query.search) {
             where.OR = [
                 { title: { contains: query.search, mode: 'insensitive' } },
@@ -69,12 +71,15 @@ let ScholarshipsService = class ScholarshipsService {
         };
     }
     async getBySlug(slug) {
-        const scholarship = await this.prisma.scholarship.findUnique({
-            where: { slug },
+        const scholarship = await this.prisma.scholarship.findFirst({
+            where: { slug, status: client_1.ScholarshipStatus.PUBLISHED },
             include: {
-                steps: {
-                    orderBy: { orderIndex: 'asc' },
-                },
+                steps: { orderBy: { orderIndex: 'asc' } },
+                requirements: { orderBy: { orderIndex: 'asc' } },
+                benefits: { orderBy: { orderIndex: 'asc' } },
+                faqs: { orderBy: { orderIndex: 'asc' } },
+                sources: true,
+                tags: { include: { tag: true } },
             },
         });
         if (!scholarship) {
@@ -142,20 +147,33 @@ let ScholarshipsService = class ScholarshipsService {
             },
         });
     }
-    async verify(id, status) {
+    async verify(id, status, reviewerId) {
         const scholarship = await this.prisma.scholarship.findUnique({
             where: { id },
         });
         if (!scholarship) {
             throw new common_1.NotFoundException('Scholarship not found');
         }
-        return this.prisma.scholarship.update({
-            where: { id },
-            data: {
-                verificationStatus: status,
-                verifiedAt: status === client_1.VerificationStatus.VERIFIED ? new Date() : null,
-                lastReviewedAt: new Date(),
-            },
+        return this.prisma.$transaction(async (tx) => {
+            const updated = await tx.scholarship.update({
+                where: { id },
+                data: {
+                    verificationStatus: status,
+                    verifiedAt: status === client_1.VerificationStatus.VERIFIED ? new Date() : null,
+                    lastReviewedAt: new Date(),
+                },
+            });
+            if (reviewerId) {
+                await tx.verificationReview.create({
+                    data: {
+                        scholarshipId: id,
+                        reviewerId,
+                        previousStatus: scholarship.verificationStatus,
+                        newStatus: status,
+                    },
+                });
+            }
+            return updated;
         });
     }
     async createReport(scholarshipId, payload, userId) {
@@ -206,6 +224,7 @@ let ScholarshipsService = class ScholarshipsService {
                     verifiedAt: new Date(),
                     lastReviewedAt: new Date(),
                     isFeatured: true,
+                    status: client_1.ScholarshipStatus.PUBLISHED,
                     createdById: admin?.id,
                 },
                 {
@@ -227,6 +246,7 @@ let ScholarshipsService = class ScholarshipsService {
                     verifiedAt: new Date(),
                     lastReviewedAt: new Date(),
                     isFeatured: true,
+                    status: client_1.ScholarshipStatus.PUBLISHED,
                     createdById: admin?.id,
                 },
             ],

@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApplicationsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
 const applications_service_1 = require("./applications.service");
 const create_partner_application_dto_1 = require("./dto/create-partner-application.dto");
 let ApplicationsController = class ApplicationsController {
@@ -55,7 +55,7 @@ __decorate([
 exports.ApplicationsController = ApplicationsController = __decorate([
     (0, swagger_1.ApiTags)('applications'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard),
     (0, common_1.Controller)('applications'),
     __metadata("design:paramtypes", [applications_service_1.ApplicationsService])
 ], ApplicationsController);

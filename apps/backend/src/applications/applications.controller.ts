@@ -1,14 +1,14 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import type { AuthUser } from '../auth/interfaces/auth-user.interface';
 import { ApplicationsService } from './applications.service';
 import { CreatePartnerApplicationDto } from './dto/create-partner-application.dto';
 
 @ApiTags('applications')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAccessGuard)
 @Controller('applications')
 export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}

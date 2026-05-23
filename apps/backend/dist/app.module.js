@@ -8,11 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const admin_module_1 = require("./admin/admin.module");
 const applications_module_1 = require("./applications/applications.module");
 const auth_module_1 = require("./auth/auth.module");
+const config_module_1 = require("./config/config.module");
+const health_module_1 = require("./health/health.module");
+const mailer_module_1 = require("./mailer/mailer.module");
 const prisma_module_1 = require("./prisma/prisma.module");
 const reminders_module_1 = require("./reminders/reminders.module");
 const saved_items_module_1 = require("./saved-items/saved-items.module");
@@ -23,8 +25,10 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            config_1.ConfigModule.forRoot({ isGlobal: true }),
+            config_module_1.AppConfigModule,
             prisma_module_1.PrismaModule,
+            mailer_module_1.MailerModule,
+            health_module_1.HealthModule,
             auth_module_1.AuthModule,
             scholarships_module_1.ScholarshipsModule,
             saved_items_module_1.SavedItemsModule,

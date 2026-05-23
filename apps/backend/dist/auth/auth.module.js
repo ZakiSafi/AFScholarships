@@ -10,24 +10,33 @@ exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
+const mailer_module_1 = require("../mailer/mailer.module");
+const auth_tokens_service_1 = require("./auth-tokens.service");
 const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
-const jwt_strategy_1 = require("./strategies/jwt.strategy");
+const google_strategy_1 = require("./strategies/google.strategy");
+const jwt_access_strategy_1 = require("./strategies/jwt-access.strategy");
+const googleOAuthProviders = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? [google_strategy_1.GoogleStrategy]
+    : [];
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            passport_1.PassportModule.register({ defaultStrategy: 'jwt' }),
-            jwt_1.JwtModule.register({
-                secret: process.env.JWT_SECRET ?? 'super-secret-key',
-                signOptions: { expiresIn: '1h' },
-            }),
+            passport_1.PassportModule.register({ defaultStrategy: 'jwt-access' }),
+            jwt_1.JwtModule.register({}),
+            mailer_module_1.MailerModule,
         ],
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
-        exports: [auth_service_1.AuthService],
+        providers: [
+            auth_service_1.AuthService,
+            auth_tokens_service_1.AuthTokensService,
+            jwt_access_strategy_1.JwtAccessStrategy,
+            ...googleOAuthProviders,
+        ],
+        exports: [auth_service_1.AuthService, auth_tokens_service_1.AuthTokensService],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

@@ -38,6 +38,15 @@ let ApplicationsService = class ApplicationsService {
                 educationLevel: payload.educationLevel,
                 statement: payload.statement,
                 docsUrls: payload.docsUrls ?? [],
+                statusLogs: {
+                    create: {
+                        toStatus: 'SUBMITTED',
+                        note: 'Application submitted',
+                    },
+                },
+            },
+            include: {
+                statusLogs: { orderBy: { createdAt: 'asc' } },
             },
         });
     }

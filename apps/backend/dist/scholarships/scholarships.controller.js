@@ -16,10 +16,10 @@ exports.ScholarshipsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
-const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
-const roles_decorator_1 = require("../auth/decorators/roles.decorator");
-const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
-const roles_guard_1 = require("../auth/guards/roles.guard");
+const current_user_decorator_1 = require("../common/decorators/current-user.decorator");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const jwt_access_guard_1 = require("../auth/guards/jwt-access.guard");
+const roles_guard_1 = require("../common/guards/roles.guard");
 const create_scholarship_dto_1 = require("./dto/create-scholarship.dto");
 const list_scholarships_dto_1 = require("./dto/list-scholarships.dto");
 const report_listing_dto_1 = require("./dto/report-listing.dto");
@@ -46,8 +46,8 @@ let ScholarshipsController = class ScholarshipsController {
     update(id, payload) {
         return this.scholarshipsService.update(id, payload);
     }
-    verify(id, payload) {
-        return this.scholarshipsService.verify(id, payload.status);
+    verify(id, payload, user) {
+        return this.scholarshipsService.verify(id, payload.status, user.userId);
     }
 };
 exports.ScholarshipsController = ScholarshipsController;
@@ -73,7 +73,7 @@ __decorate([
         summary: 'Report potentially outdated or incorrect listing data',
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Report submitted' }),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard),
     (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -85,7 +85,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create scholarship (admin)' }),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Body)()),
@@ -97,7 +97,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Update scholarship (admin)' }),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('id')),
@@ -109,13 +109,14 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/verify'),
     (0, swagger_1.ApiOperation)({ summary: 'Verify or flag scholarship (admin)' }),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, common_1.UseGuards)(jwt_access_guard_1.JwtAccessGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, verify_scholarship_dto_1.VerifyScholarshipDto]),
+    __metadata("design:paramtypes", [String, verify_scholarship_dto_1.VerifyScholarshipDto, Object]),
     __metadata("design:returntype", void 0)
 ], ScholarshipsController.prototype, "verify", null);
 exports.ScholarshipsController = ScholarshipsController = __decorate([

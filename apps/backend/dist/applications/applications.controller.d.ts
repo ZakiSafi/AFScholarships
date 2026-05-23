@@ -5,6 +5,16 @@ export declare class ApplicationsController {
     private readonly applicationsService;
     constructor(applicationsService: ApplicationsService);
     createPartnerApplication(scholarshipId: string, user: AuthUser, payload: CreatePartnerApplicationDto): Promise<{
+        statusLogs: {
+            id: string;
+            createdAt: Date;
+            fromStatus: import("@prisma/client").$Enums.ApplicationStatus | null;
+            toStatus: import("@prisma/client").$Enums.ApplicationStatus;
+            note: string | null;
+            changedById: string | null;
+            applicationId: string;
+        }[];
+    } & {
         status: import("@prisma/client").$Enums.ApplicationStatus;
         id: string;
         scholarshipId: string;
@@ -13,9 +23,9 @@ export declare class ApplicationsController {
         createdAt: Date;
         updatedAt: Date;
         email: string;
-        country: string | null;
         fullName: string;
         phone: string | null;
+        country: string | null;
         educationLevel: string | null;
         statement: string;
         docsUrls: string[];
@@ -25,6 +35,7 @@ export declare class ApplicationsController {
         scholarship: {
             description: string;
             title: string;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -59,9 +70,9 @@ export declare class ApplicationsController {
         createdAt: Date;
         updatedAt: Date;
         email: string;
-        country: string | null;
         fullName: string;
         phone: string | null;
+        country: string | null;
         educationLevel: string | null;
         statement: string;
         docsUrls: string[];

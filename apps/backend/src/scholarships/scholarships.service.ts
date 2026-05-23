@@ -4,7 +4,12 @@ import {
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
-import { Prisma, UserRole, VerificationStatus } from '@prisma/client';
+import {
+  Prisma,
+  ScholarshipStatus,
+  UserRole,
+  VerificationStatus,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateScholarshipDto } from './dto/create-scholarship.dto';
 import { ListScholarshipsDto } from './dto/list-scholarships.dto';
@@ -24,7 +29,9 @@ export class ScholarshipsService implements OnModuleInit {
     const limit = query.limit ?? 10;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ScholarshipWhereInput = {};
+    const where: Prisma.ScholarshipWhereInput = {
+      status: ScholarshipStatus.PUBLISHED,
+    };
 
     if (query.search) {
       where.OR = [
@@ -72,12 +79,15 @@ export class ScholarshipsService implements OnModuleInit {
   }
 
   async getBySlug(slug: string) {
-    const scholarship = await this.prisma.scholarship.findUnique({
-      where: { slug },
+    const scholarship = await this.prisma.scholarship.findFirst({
+      where: { slug, status: ScholarshipStatus.PUBLISHED },
       include: {
-        steps: {
-          orderBy: { orderIndex: 'asc' },
-        },
+        steps: { orderBy: { orderIndex: 'asc' } },
+        requirements: { orderBy: { orderIndex: 'asc' } },
+        benefits: { orderBy: { orderIndex: 'asc' } },
+        faqs: { orderBy: { orderIndex: 'asc' } },
+        sources: true,
+        tags: { include: { tag: true } },
       },
     });
 
@@ -154,7 +164,11 @@ export class ScholarshipsService implements OnModuleInit {
     });
   }
 
-  async verify(id: string, status: VerificationStatus) {
+  async verify(
+    id: string,
+    status: VerificationStatus,
+    reviewerId?: string,
+  ) {
     const scholarship = await this.prisma.scholarship.findUnique({
       where: { id },
     });
@@ -162,13 +176,27 @@ export class ScholarshipsService implements OnModuleInit {
       throw new NotFoundException('Scholarship not found');
     }
 
-    return this.prisma.scholarship.update({
-      where: { id },
-      data: {
-        verificationStatus: status,
-        verifiedAt: status === VerificationStatus.VERIFIED ? new Date() : null,
-        lastReviewedAt: new Date(),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.scholarship.update({
+        where: { id },
+        data: {
+          verificationStatus: status,
+          verifiedAt:
+            status === VerificationStatus.VERIFIED ? new Date() : null,
+          lastReviewedAt: new Date(),
+        },
+      });
+      if (reviewerId) {
+        await tx.verificationReview.create({
+          data: {
+            scholarshipId: id,
+            reviewerId,
+            previousStatus: scholarship.verificationStatus,
+            newStatus: status,
+          },
+        });
+      }
+      return updated;
     });
   }
 
@@ -230,6 +258,7 @@ export class ScholarshipsService implements OnModuleInit {
           verifiedAt: new Date(),
           lastReviewedAt: new Date(),
           isFeatured: true,
+          status: ScholarshipStatus.PUBLISHED,
           createdById: admin?.id,
         },
         {
@@ -253,6 +282,7 @@ export class ScholarshipsService implements OnModuleInit {
           verifiedAt: new Date(),
           lastReviewedAt: new Date(),
           isFeatured: true,
+          status: ScholarshipStatus.PUBLISHED,
           createdById: admin?.id,
         },
       ],

@@ -12,6 +12,7 @@ export declare class ScholarshipsController {
         items: {
             description: string;
             title: string;
+            status: import("@prisma/client").$Enums.ScholarshipStatus;
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -43,6 +44,25 @@ export declare class ScholarshipsController {
         totalPages: number;
     }>;
     getBySlug(slug: string): Promise<{
+        requirements: {
+            description: string;
+            id: string;
+            scholarshipId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            orderIndex: number;
+            label: string;
+            isMandatory: boolean;
+        }[];
+        benefits: {
+            description: string;
+            title: string;
+            id: string;
+            scholarshipId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            orderIndex: number;
+        }[];
         steps: {
             description: string;
             title: string;
@@ -53,9 +73,39 @@ export declare class ScholarshipsController {
             orderIndex: number;
             isRequired: boolean;
         }[];
+        faqs: {
+            id: string;
+            scholarshipId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            orderIndex: number;
+            question: string;
+            answer: string;
+        }[];
+        sources: {
+            id: string;
+            scholarshipId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            label: string;
+            url: string;
+            lastCheckedAt: Date | null;
+        }[];
+        tags: ({
+            tag: {
+                id: string;
+                createdAt: Date;
+                name: string;
+                slug: string;
+            };
+        } & {
+            scholarshipId: string;
+            tagId: string;
+        })[];
     } & {
         description: string;
         title: string;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -107,6 +157,7 @@ export declare class ScholarshipsController {
     } & {
         description: string;
         title: string;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -135,6 +186,7 @@ export declare class ScholarshipsController {
     update(id: string, payload: UpdateScholarshipDto): Promise<{
         description: string;
         title: string;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -160,9 +212,10 @@ export declare class ScholarshipsController {
         isFeatured: boolean;
         createdById: string | null;
     }>;
-    verify(id: string, payload: VerifyScholarshipDto): Promise<{
+    verify(id: string, payload: VerifyScholarshipDto, user: AuthUser): Promise<{
         description: string;
         title: string;
+        status: import("@prisma/client").$Enums.ScholarshipStatus;
         id: string;
         createdAt: Date;
         updatedAt: Date;
